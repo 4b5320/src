@@ -1,3 +1,4 @@
+package test;
 
 public class myMessage implements java.io.Serializable{
 	private int type = -1;
@@ -15,13 +16,15 @@ public class myMessage implements java.io.Serializable{
 	protected Object getMessage() {
 		return message;
 	}
+	
 	/* OBJECT TYPES
 	 * 1 - Boolean. A prompt that this player is ready to continue
 	 * 2 - Integer. Roles
+	 * 3 - String. Message
 	 * 		1 - Judge is selected				| -1 Judge is unselected
 	 * 		2 - Defense Attorney is selected	| -2 Defense Attorney is unselected
 	 * 		3 - Prosecutor is selected			| -3 Prosecutor is unselected
 	 * 		4 - Jury is selected				| -4 Jury is unselected
-	 * 3 - String. A message from the user
 	 * */
 }
+

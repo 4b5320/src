@@ -1,3 +1,5 @@
+package test;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -17,6 +19,7 @@ public class host extends JFrame{
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
+	private JTextArea textArea2 = new JTextArea();
 	private JProgressBar progressBar = new JProgressBar();
 	private JButton btnConnect = new JButton("CONNECT");
 	private JButton btnStart = new JButton("START");
@@ -189,12 +192,7 @@ public class host extends JFrame{
 			while(true) {
 				try {
 					myMessage message = (myMessage) in.readObject();
-					
-					if (message.isType(3)) {
-						textArea.append(message.getMessage().toString());
-						System.out.println(message.getMessage().toString());
-						textArea.setCaretPosition(textArea.getText().length());
-					}
+					System.out.println(message.getMessage().toString());
 					if(message.isType(1) && message.getMessage().toString().equals("true")) {
 						System.out.println("Message received.");
 						playersReady++;
@@ -218,7 +216,10 @@ public class host extends JFrame{
 								roleTaken[value - 1] = false;
 							} 
 						}
-					} 
+					}else if(message.isType(3)) {
+						textArea2.append("\nmessage received");
+						textArea2.append((String)message.getMessage());
+					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (SocketException e) {
@@ -402,20 +403,18 @@ public class host extends JFrame{
 		removeElements();
 		JTextField inputField = new JTextField();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(textArea, BorderLayout.CENTER);
-		textArea = new JTextArea();
-		textArea.setEditable(true);
+		mainPanel.add(textArea2, BorderLayout.CENTER);
+		textArea2 = new JTextArea();
+		textArea2.setEditable(true);
 		
 		inputField.setColumns(10);
 		mainPanel.add(inputField, BorderLayout.SOUTH);
 		
 		inputField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(!inputField.getText().isEmpty()) {
-					inputField.setText("");
-					sendMessage(new myMessage (3,inputField.getText()));
-					
-				}
+				sendMessage(new myMessage (3,inputField.getText()));
+				System.out.println(inputField.getText());
+				inputField.setText("");
 			}
 		});
 	}
