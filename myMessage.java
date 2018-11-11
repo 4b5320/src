@@ -19,8 +19,11 @@ public class myMessage implements java.io.Serializable{
 	/* OBJECT TYPES
 	 * 1 - Boolean. A prompt that this player is ready to continue
 	 * 2 - Integer. Roles
-	 * 3 - String. Message of the Courtroom
-	 * 4 - String. Message of the Jury
+	 * 3 - String.Player Name
+	 * 4 - String. Player Role
+	 * 5 - String. Message of the Courtroom
+	 * 6 - String. Message of the Jury
+	 * 
 	 * 		1 - Judge is selected				| -1 Judge is unselected
 	 * 		2 - Defense Attorney is selected	| -2 Defense Attorney is unselected
 	 * 		3 - Prosecutor is selected			| -3 Prosecutor is unselected
