@@ -9,6 +9,7 @@ import javax.swing.*;
 public class host extends JFrame{
 	private String ip;
 	private String playerName = null;
+	private String playerRole = null;
 	private LinkedList<player> players;
 	private ServerSocket serverSocket;
 	private int port = 5678;
@@ -18,6 +19,7 @@ public class host extends JFrame{
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
+	private JTextArea textArea2 = new JTextArea();
 	private JProgressBar progressBar = new JProgressBar();
 	private JButton btnConnect = new JButton("CONNECT");
 	private JButton btnStart = new JButton("START");
@@ -29,6 +31,9 @@ public class host extends JFrame{
 	private LinkedList<String> clientList = new LinkedList<String>();
 	
 	public host(int port) {
+		
+		playerName = JOptionPane.showInputDialog("Input Username");
+	
 		initGUI();
 		this.port = port;
 
@@ -215,8 +220,11 @@ public class host extends JFrame{
 							} 
 						}
 					}else if(message.isType(3)) {
-						textArea.append("\n"+(String)message.getMessage());
+						textArea.append("\n"+playerName+"("+playerRole+"): "+(String)message.getMessage());
+					}else if(message.isType(4)){
+						textArea2.append("\n"+playerName+"("+playerRole+"): "+(String)message.getMessage());
 					}
+					
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (SocketException e) {
@@ -237,6 +245,11 @@ public class host extends JFrame{
 	private void sendMessage(myMessage message) {
 		for(int i=0;i<players.size();i++) {
 			players.get(i).writeObject(message);
+		}
+		if(message.isType(3)){
+			textArea.append("\n"+playerName+"("+playerRole+"): "+(String)message.getMessage());	
+		}else if(message.isType(4)){
+			textArea2.append("\n"+playerName+"("+playerRole+"): "+(String)message.getMessage());
 		}
 	}
 	
@@ -292,8 +305,8 @@ public class host extends JFrame{
 		for(int i=0;i<rolebtn.length;i++) {
 			rolebtn[i].setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
 			rolebtn[i].setBounds(10, i*60+50, 420, 30);
-			mainPanel.add(rolebtn[i]);
 			
+			mainPanel.add(rolebtn[i]);
 		}
 		
 		for(int i=0;i<labels.length;i++) {
@@ -322,6 +335,7 @@ public class host extends JFrame{
 			final int k = i;
 			rolebtn[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					playerRole = roles[k];
 					if(rolebtn[k].isSelected()) {
 						sendMessage(new myMessage(2,k+1));
 						for (int j = 0; j < rolebtn.length; j++) {
@@ -332,7 +346,6 @@ public class host extends JFrame{
 						}
 					} else {
 						sendMessage(new myMessage(2,(k+1)*-1));
-						
 					}
 				}
 			});
@@ -340,33 +353,72 @@ public class host extends JFrame{
 		
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//chatUI(playerName);
-				setupchatUI();
+				if(playerRole=="Defense Lawyer" || playerRole=="Prosecutor"){
+					setupchatUI(playerRole);
+				}else if(playerRole=="Jury" || playerRole=="Judge"){
+					setupchatUI(playerRole);
+					setupchatUI2();
+				}
+				
 			}
 		});
 	}
-	
-	private void setupchatUI() {
+	private void setupchatUI(String playerRole) {
 		removeElements();
-		JTextField inputField = new JTextField();
+		
 		mainPanel.setLayout(new BorderLayout());
-		//textArea2 = new JTextArea();
-		textArea.setEditable(true);
+		textArea.setEditable(false);
 		mainPanel.add(textArea, BorderLayout.CENTER);
-		
-		
-		inputField.setColumns(10);
-		mainPanel.add(inputField, BorderLayout.SOUTH);
-		//mainPanel.add(, BorderLayout.EAST);
-		inputField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sendMessage(new myMessage (3,inputField.getText()));
-				System.out.println(inputField.getText());
-				inputField.setText("");
-			}
-		});
+		if(playerRole!="Jury"){
+			JTextField inputField = new JTextField();
+			inputField.setColumns(10);
+			mainPanel.add(inputField, BorderLayout.SOUTH);
+			inputField.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					sendMessage(new myMessage (3,inputField.getText()));
+					System.out.println(inputField.getText());
+					inputField.setText("");
+				}
+			});
+		}
 	}
+	private void setupchatUI2() {
+
+		EventQueue.invokeLater(new Runnable(){
+			@Override
+			public void run(){
+				
+				frame = new JFrame("Jury");
+				frame.setBounds(100, 100, 450, 357);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				
+				JPanel panel = new JPanel();
+				panel.setLayout(null);
+				frame.getContentPane().add(panel, BorderLayout.CENTER);
+				frame.setResizable(false);
 	
+				JTextField inputField2 = new JTextField();
+				textArea2.setBounds(0, 0, 432, 265);
+				panel.add(textArea2);
+				textArea2.setEditable(false);
+				
+				inputField2.setBounds(10, 277, 410, 22);
+				panel.add(inputField2);
+				inputField2.setColumns(10);
+	
+				frame.setVisible(true);
+				inputField2.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage (4,inputField2.getText()));
+						System.out.println(inputField2.getText());
+						inputField2.setText("");
+					}
+				});
+			}
+			
+		});
+		
+	}
 	/*public void chatUI(String Name) {
 		EventQueue.invokeLater(new Runnable(){
 			@Override
@@ -409,8 +461,7 @@ public class host extends JFrame{
 	public class player{
 		private String playerName;
 		private Socket socket;
-		private ObjectOutputStream outStream;
-		
+		private ObjectOutputStream outStream;		
 		public player(Socket socket) {
 			try {
 				this.socket = socket;
