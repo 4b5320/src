@@ -1,4 +1,3 @@
-package test;
 
 public class myMessage implements java.io.Serializable{
 	private int type = -1;
