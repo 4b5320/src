@@ -11,10 +11,6 @@ public class test {
 				new host(5678);
 			}
 		}).start();
-		while(true){
-			System.out.println("pussy");
-		}
-	
 	}
 
 }
