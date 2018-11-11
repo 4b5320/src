@@ -12,6 +12,26 @@ public class test {
 			}
 		}).start();
 	}
-
+/*
+ * Story - display on the chat box at the start of the game
+ * 
+ * Evidences - display on as list, (evidence name, evidence description)
+ * 
+ * witnesses - an evidence that only the prosecutor knows(witness name, witness' testimony)
+ * Examples:
+ * 	Story:
+ * 		
+ * 	Evidences:
+ *		
+ * 	
+ * 	Witness:
+ * 		
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * */
 }
 

@@ -18,7 +18,6 @@ public class host extends JFrame{
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
-	private JTextArea textArea2 = new JTextArea();
 	private JProgressBar progressBar = new JProgressBar();
 	private JButton btnConnect = new JButton("CONNECT");
 	private JButton btnStart = new JButton("START");
@@ -216,8 +215,7 @@ public class host extends JFrame{
 							} 
 						}
 					}else if(message.isType(3)) {
-						textArea2.append("\nmessage received");
-						textArea2.append((String)message.getMessage());
+						textArea.append("\n"+(String)message.getMessage());
 					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -252,57 +250,7 @@ public class host extends JFrame{
 		this.getContentPane().add(progressBar, BorderLayout.SOUTH);
 		mainPanel.setLayout(null);
 		progressBar.setForeground(Color.BLACK);
-		progressBar.setBackground(Color.WHITE);
-		
-		//setupPanel1();
-		//setupPanel2();
-		//Setup the homescreen
-		
-		/*JLabel lblCourtsim = new JLabel("CourtSim");
-		JLabel lblEnterYourUsername = new JLabel("Enter your username");
-		JButton btnStart = new JButton("S T A R T");
-		lblCourtsim.setForeground(Color.BLACK);
-		lblCourtsim.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCourtsim.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 35));
-		lblCourtsim.setBounds(10, 11, 419, 60);
-		mainPanel.add(lblCourtsim);
-		
-		nameField = new JTextField("");
-		nameField.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if(nameField.getText().replaceAll(" ", "").length() > 0) {
-					mainPanel.add(btnStart);
-					mainPanel.revalidate();
-					mainPanel.repaint();
-				} else {
-					mainPanel.remove(btnStart);
-					mainPanel.revalidate();
-					mainPanel.repaint();
-				}
-			}
-		});
-		nameField.setForeground(Color.BLACK);
-		nameField.setHorizontalAlignment(SwingConstants.CENTER);
-		nameField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 30));
-		nameField.setBounds(45, 145, 350, 60);
-		mainPanel.add(nameField);
-		
-		lblEnterYourUsername.setForeground(Color.BLACK);
-		lblEnterYourUsername.setHorizontalAlignment(SwingConstants.CENTER);
-		lblEnterYourUsername.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 35));
-		lblEnterYourUsername.setBounds(10, 93, 419, 52);
-		mainPanel.add(lblEnterYourUsername);
-		
-		btnStart.setForeground(Color.BLACK);
-		btnStart.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 30));
-		btnStart.setBounds(70, 230, 300, 30);
-		btnStart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				removeElements();
-				setupPanel1();
-			}
-		});*/
-				
+		progressBar.setBackground(Color.WHITE);		
 	}
 	
 	private void removeElements() {
@@ -402,13 +350,14 @@ public class host extends JFrame{
 		removeElements();
 		JTextField inputField = new JTextField();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(textArea2, BorderLayout.CENTER);
-		textArea2 = new JTextArea();
-		textArea2.setEditable(true);
+		//textArea2 = new JTextArea();
+		textArea.setEditable(true);
+		mainPanel.add(textArea, BorderLayout.CENTER);
+		
 		
 		inputField.setColumns(10);
 		mainPanel.add(inputField, BorderLayout.SOUTH);
-		
+		//mainPanel.add(, BorderLayout.EAST);
 		inputField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendMessage(new myMessage (3,inputField.getText()));
