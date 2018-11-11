@@ -15,7 +15,6 @@ public class host extends JFrame{
 	private int port = 5678;
 	private boolean readyToPlay = false;
 	private int playersReady = 0;
-	private String[] Send = new String[3];
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
@@ -220,9 +219,11 @@ public class host extends JFrame{
 							} 
 						}
 					}else if(message.isType(3)) {
+						String[] Send = (String[]) message.getMessage();
 						textArea.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);
 					}else if(message.isType(4)){
-						textArea2.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);
+						String[] Send = (String[]) message.getMessage();
+						textArea2.append("\n"+(String)Send[0]+"("+(String)Send[1]+"): "+(String)Send[2]);
 					}
 					
 				} catch (ClassNotFoundException e) {
@@ -247,8 +248,10 @@ public class host extends JFrame{
 			players.get(i).writeObject(message);
 		}
 		if(message.isType(3)){
+			String[] Send = (String[]) message.getMessage();
 			textArea.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);	
 		}else if(message.isType(4)){
+			String[] Send = (String[]) message.getMessage();
 			textArea2.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);
 		}
 	}
@@ -375,11 +378,7 @@ public class host extends JFrame{
 			mainPanel.add(inputField, BorderLayout.SOUTH);
 			inputField.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Send[0] = playerName;
-					Send[1] = playerRole;
-					Send[2] = inputField.getText();
-					sendMessage(new myMessage (3,Send));
-					System.out.println(inputField.getText());
+					sendMessage(new myMessage (3,new String[]{playerName, playerRole, inputField.getText()}));
 					inputField.setText("");
 				}
 			});
@@ -412,11 +411,7 @@ public class host extends JFrame{
 				frame.setVisible(true);
 				inputField2.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						Send[0] = playerName;
-						Send[1] = playerRole;
-						Send[2] = inputField2.getText();
-						sendMessage(new myMessage (4,Send));
-						System.out.println(inputField2.getText());
+						sendMessage(new myMessage (4,new String[]{playerName, playerRole, inputField2.getText()}));
 						inputField2.setText("");
 					}
 				});
