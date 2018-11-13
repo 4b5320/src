@@ -15,6 +15,7 @@ public class host extends JFrame{
 	private int port = 5678;
 	private boolean readyToPlay = false;
 	private int playersReady = 0;
+	private double timeout = 30;
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
@@ -306,7 +307,24 @@ public class host extends JFrame{
 							courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
 						}
 					}else if(message.isType(4) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
-						inputField.setEnabled(playerRole.equals((String) message.getMessage()));
+						if (playerRole.equals((String) message.getMessage())) {
+							inputField.setEnabled(true);
+							for (int i = 1; i <= 100; i++) {
+								progressBar.setValue(i);
+								try {
+									Thread.sleep((long) (1000 * timeout / 100));
+								} catch (InterruptedException e) {
+								}
+							}
+							inputField.setEnabled(false);
+							if (playerRole.equals("Prosecutor")) {
+								sendMessage(new myMessage(4, "Defense Lawyer"));
+							} else {
+								sendMessage(new myMessage(4, "Prosecutor"));
+							} 
+						} else {
+							inputField.setEnabled(false);
+						}
 					}else if(message.isType(5) && playerRole.equals("Jury")) {
 						int x = this.getX() + this.getWidth();
 						int y = this.getY();
