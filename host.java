@@ -29,10 +29,14 @@ public class host extends JFrame{
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Jury"};
 	private LinkedList<String> clientList = new LinkedList<String>();
 	
+
+	private JTextArea courtArea;
+	private JTextArea juryArea;
+	
 	public host(int port) {
 		
-		playerName = JOptionPane.showInputDialog("Input Username");
-	
+		//playerName = JOptionPane.showInputDialog("Input Username");
+		
 		initGUI();
 		this.port = port;
 
@@ -41,10 +45,71 @@ public class host extends JFrame{
 				new Thread(new Runnable() {
 					public void run() {
 						try {
-							startRunning(JOptionPane.showInputDialog("IP Address please"), 5678);
-						} catch (HeadlessException | SocketException e) {
-							e.printStackTrace();
-						}
+							byte[] localIP = InetAddress.getLocalHost().getAddress();
+							String subnet = Byte.toUnsignedInt(localIP[0]) + "." + Byte.toUnsignedInt(localIP[1]) + "." + Byte.toUnsignedInt(localIP[2]);
+							
+							JFrame inputFrame = new JFrame();
+							inputFrame.setVisible(true);
+							inputFrame.getContentPane().setBackground(new Color(192, 192, 192));
+							inputFrame.setResizable(false);
+							inputFrame.setBounds(500, 500, 250, 360);
+							inputFrame.getContentPane().setLayout(null);
+							
+							JLabel lblEnterIpAddresses = new JLabel("Enter IP Addresses of servers\r\n");
+							lblEnterIpAddresses.setForeground(Color.BLACK);
+							lblEnterIpAddresses.setFont(new Font("Times New Roman", Font.BOLD, 15));
+							lblEnterIpAddresses.setBounds(10, 11, 224, 25);
+							inputFrame.getContentPane().add(lblEnterIpAddresses);
+							
+							JLabel lblseparareByNew = new JLabel("(separare by new lines)");
+							lblseparareByNew.setForeground(Color.BLACK);
+							lblseparareByNew.setFont(new Font("Times New Roman", Font.BOLD, 15));
+							lblseparareByNew.setBounds(10, 29, 224, 18);
+							inputFrame.getContentPane().add(lblseparareByNew);
+							
+							
+							JTextArea ipArea = new JTextArea(subnet+".");
+							ipArea.setForeground(Color.BLACK);
+							ipArea.setCaretPosition(ipArea.getText().length());
+							ipArea.setBounds(10, 60, 225, 225);
+							ipArea.addKeyListener(new KeyAdapter() {
+								public void keyReleased(KeyEvent e) {
+									if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+										ipArea.append(subnet + ".");
+									}
+								}
+							});
+							inputFrame.getContentPane().add(ipArea);
+
+							JButton btnNewButton = new JButton("Connect to servers");
+							btnNewButton.setFont(new Font("Times New Roman", Font.BOLD, 15));
+							btnNewButton.setBounds(10, 300, 224, 23);
+							inputFrame.getContentPane().add(btnNewButton);
+							btnNewButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									String[] list = ipArea.getText().split("\n");
+									for(String s : list) {
+										new Thread(new Runnable() {
+											public void run() {
+												try {
+													if(s.split(";").length>1) {
+														startRunning(s.split(";")[0], Integer.parseInt(s.split(";")[1]));
+													} else {
+														startRunning(s, 5678);
+													}
+													
+												} catch (SocketException e1) {
+													e1.printStackTrace();
+												}
+											}
+										}).start();
+									}
+									inputFrame.dispose();
+								}
+							});
+							
+							ipArea.requestFocus();
+						} catch (UnknownHostException e) { }
 					}
 				}).start();
 			}
@@ -89,9 +154,12 @@ public class host extends JFrame{
 			textArea.append("Server IP Address: " + ip);
 			textArea.append("\nPort: " + port);
 			waitForClients();
+		} catch (BindException e) {
+			JOptionPane.showMessageDialog(new JFrame(), "Port number already in use, cannot start server", "Startup Error", JOptionPane.OK_OPTION);
+			System.exit(ERROR);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
 	}
 	
 	//This is used when player wants to host the game
@@ -194,7 +262,6 @@ public class host extends JFrame{
 			while(true) {
 				try {
 					myMessage message = (myMessage) in.readObject();
-					System.out.println(message.getMessage().toString());
 					if(message.isType(1) && message.getMessage().toString().equals("true")) {
 						System.out.println("Message received.");
 						playersReady++;
@@ -219,11 +286,25 @@ public class host extends JFrame{
 							} 
 						}
 					}else if(message.isType(3)) {
-						String[] Send = (String[]) message.getMessage();
-						textArea.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);
-					}else if(message.isType(4)){
-						String[] Send = (String[]) message.getMessage();
-						textArea2.append("\n"+(String)Send[0]+"("+(String)Send[1]+"): "+(String)Send[2]);
+						System.out.println("Received role: " + message.getRoleOfSource());
+						if(playerRole.equals("Jury")) {
+							if(message.getRoleOfSource().equals("Jury")) {
+								juryArea.append("\nJury " + message.getSource() + ": " + (String) message.getMessage());
+							} else {
+								courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
+								courtArea.setCaretPosition(courtArea.getText().length());
+							}
+						} else if(!message.getRoleOfSource().equals("Jury")){
+							courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
+						}
+					}else if(message.isType(4) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
+						
+					}else if(message.isType(5) && playerRole.equals("Jury")) {
+						
+					}else if(message.isType(6) && playerRole.equals("Judge")) {
+						
+					}else if(message.isType(7) && playerRole.equals("Judge")) {
+						
 					}
 					
 				} catch (ClassNotFoundException e) {
@@ -246,13 +327,6 @@ public class host extends JFrame{
 	private void sendMessage(myMessage message) {
 		for(int i=0;i<players.size();i++) {
 			players.get(i).writeObject(message);
-		}
-		if(message.isType(3)){
-			String[] Send = (String[]) message.getMessage();
-			textArea.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);	
-		}else if(message.isType(4)){
-			String[] Send = (String[]) message.getMessage();
-			textArea2.append("\n"+Send[0]+"("+Send[1]+"): "+Send[2]);
 		}
 	}
 	
@@ -278,6 +352,7 @@ public class host extends JFrame{
 	}
 	
 	private void setupPanel1() {
+		mainPanel.setLayout(null);
 		
 		btnStart.setBackground(Color.LIGHT_GRAY);
 		btnStart.setForeground(Color.BLACK);
@@ -298,6 +373,7 @@ public class host extends JFrame{
 	
 	private void setupPanel2() {
 		removeElements();
+		mainPanel.setLayout(null);
 		rolebtn = new JToggleButton[4];
 		JLabel[] labels = new JLabel[4];
 		
@@ -356,108 +432,276 @@ public class host extends JFrame{
 		
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(playerRole=="Defense Lawyer" || playerRole=="Prosecutor"){
-					setupchatUI(playerRole);
-				}else if(playerRole=="Jury" || playerRole=="Judge"){
-					setupchatUI(playerRole);
-					setupchatUI2();
-				}
-				
+				setupchatUI();
 			}
 		});
-	}
-	private void setupchatUI(String playerRole) {
-		removeElements();
 		
-		mainPanel.setLayout(new BorderLayout());
-		textArea.setEditable(false);
-		mainPanel.add(textArea, BorderLayout.CENTER);
-		if(playerRole!="Jury"){
-			JTextField inputField = new JTextField();
-			inputField.setColumns(10);
-			mainPanel.add(inputField, BorderLayout.SOUTH);
-			inputField.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					sendMessage(new myMessage (3,new String[]{playerName, playerRole, inputField.getText()}));
-					inputField.setText("");
-				}
-			});
-		}
+		mainPanel.repaint();
+		mainPanel.revalidate();
 	}
-	private void setupchatUI2() {
+	private void setupchatUI() {
+		removeElements();
+		mainPanel.setLayout(null);
+		this.setSize(540, 440);
+		
+		JTextField inputField = new JTextField();
+		courtArea = new JTextArea();
+		JScrollPane scrollPane1 = new JScrollPane();
+		JScrollPane scrollPane2;
+		JButton btnNewButton = new JButton("SEND");
+		
+		if(playerRole == "Jury") {
+			
+			//Setup the courtroom chat box
+			JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
+			lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
+			lblCourtroomsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
+			courtArea.setForeground(Color.BLACK);
+			courtArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			courtArea.setEditable(false);
+			scrollPane1.setViewportView(courtArea);
+			
+			//setup jury chatbox
+			scrollPane2 = new JScrollPane();
+			juryArea = new JTextArea();
+			juryArea.setForeground(Color.BLACK);
+			juryArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			juryArea.setEditable(false);
+			scrollPane2.setViewportView(juryArea);
+			JLabel lblJurysConversation = new JLabel("Jury's Conversation");
+			lblJurysConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			lblJurysConversation.setBackground(SystemColor.menu);
+			scrollPane2.setColumnHeaderView(lblJurysConversation);
 
-		EventQueue.invokeLater(new Runnable(){
-			@Override
-			public void run(){
+			//setup the chat boxes
+			JSplitPane chatSplitter = new JSplitPane();
+			chatSplitter.setBounds(10,10, 510, 350);
+			chatSplitter.setLeftComponent(scrollPane1);
+			chatSplitter.setRightComponent(scrollPane2);
+			chatSplitter.setResizeWeight(0.5);
+			chatSplitter.setContinuousLayout(true);
+			mainPanel.add(chatSplitter);
+			
+			//setup the message input field
+			inputField.setForeground(Color.BLACK);
+			inputField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			inputField.setBounds(10, 370, 435, 20);
+			mainPanel.add(inputField);
+			
+			//setup the send button
+			btnNewButton.setForeground(Color.BLACK);
+			btnNewButton.setBackground(UIManager.getColor("Button.light"));
+			btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			btnNewButton.setBounds(445, 370, 75, 20);
+			mainPanel.add(btnNewButton);
+		} else {
+			//Setup the courtroom chat box
+			JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
+			lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
+			lblCourtroomsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
+			courtArea.setForeground(Color.BLACK);
+			courtArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			courtArea.setEditable(false);
+			scrollPane1.setViewportView(courtArea);
+			scrollPane1.setBounds(10, 10, 340, 350);
+			mainPanel.add(scrollPane1);
+
+			//setup the message input field
+			inputField.setForeground(Color.BLACK);
+			inputField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			inputField.setBounds(10, 370, 430, 20);
+			mainPanel.add(inputField);
+			
+			//setup the send button
+			btnNewButton.setForeground(Color.BLACK);
+			btnNewButton.setBackground(UIManager.getColor("Button.light"));
+			btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			btnNewButton.setBounds(450, 370, 75, 20);
+			mainPanel.add(btnNewButton);
+			
+			if(playerRole.equals("Judge")) {
+				ButtonGroup bg = new ButtonGroup();
+				JRadioButton rdbtnNewRadioButton = new JRadioButton("Prosecutor");
+				JRadioButton rdbtnDefenseLawyer = new JRadioButton("Defense Lawyer");
+				bg.add(rdbtnNewRadioButton);
+				bg.add(rdbtnDefenseLawyer);
 				
-				frame = new JFrame("Jury");
-				frame.setBounds(100, 100, 450, 357);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				JButton btnBeginTrial = new JButton("BEGIN TRIAL");
+				btnBeginTrial.setForeground(Color.BLACK);
+				btnBeginTrial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnBeginTrial.setBackground(SystemColor.controlHighlight);
+				btnBeginTrial.setBounds(360, 10, 165, 30);
+				mainPanel.add(btnBeginTrial);
 				
-				JPanel panel = new JPanel();
-				panel.setLayout(null);
-				frame.getContentPane().add(panel, BorderLayout.CENTER);
-				frame.setResizable(false);
-	
-				JTextField inputField2 = new JTextField();
-				textArea2.setBounds(0, 0, 432, 265);
-				panel.add(textArea2);
-				textArea2.setEditable(false);
+				JButton btnDemandOrder = new JButton("DEMAND ORDER");
+				btnDemandOrder.setForeground(Color.BLACK);
+				btnDemandOrder.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnDemandOrder.setBackground(SystemColor.controlHighlight);
+				btnDemandOrder.setBounds(360, 50, 165, 30);
+				mainPanel.add(btnDemandOrder);
 				
-				inputField2.setBounds(10, 277, 410, 22);
-				panel.add(inputField2);
-				inputField2.setColumns(10);
-	
-				frame.setVisible(true);
-				inputField2.addActionListener(new ActionListener() {
+				JLabel lblWhoWillTalk = new JLabel("Who is allowed to speak?");
+				lblWhoWillTalk.setForeground(Color.BLACK);
+				lblWhoWillTalk.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				lblWhoWillTalk.setBackground(SystemColor.menu);
+				lblWhoWillTalk.setBounds(360, 91, 164, 20);
+				mainPanel.add(lblWhoWillTalk);
+				
+				rdbtnNewRadioButton.setForeground(Color.BLACK);
+				rdbtnNewRadioButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				rdbtnNewRadioButton.setBounds(370, 115, 155, 20);
+				mainPanel.add(rdbtnNewRadioButton);
+				
+				rdbtnDefenseLawyer.setForeground(Color.BLACK);
+				rdbtnDefenseLawyer.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				rdbtnDefenseLawyer.setBounds(370, 140, 155, 20);
+				mainPanel.add(rdbtnDefenseLawyer);
+				
+				JButton btnDecide = new JButton("DECIDE");
+				btnDecide.setForeground(Color.BLACK);
+				btnDecide.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnDecide.setBackground(SystemColor.controlHighlight);
+				btnDecide.setBounds(360, 220, 165, 30);
+				mainPanel.add(btnDecide);
+				
+				JButton btnCallForPartial = new JButton("PARTIAL VERDICT");
+				btnCallForPartial.setForeground(Color.BLACK);
+				btnCallForPartial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnCallForPartial.setBackground(SystemColor.controlHighlight);
+				btnCallForPartial.setBounds(360, 180, 165, 30);
+				mainPanel.add(btnCallForPartial);
+				
+				//Events
+				btnBeginTrial.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						sendMessage(new myMessage (4,new String[]{playerName, playerRole, inputField2.getText()}));
-						inputField2.setText("");
+						btnBeginTrial.setEnabled(false);
+						sendMessage(new myMessage(3, "I allow the prosecutor to talk first.", playerRole, playerName));
+						sendMessage(new myMessage(4, "Prosecutor"));
+					}
+				});
+				
+				btnDemandOrder.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "ORDER IN THE COURT!", playerRole, playerName));
+						sendMessage(new myMessage(4, null));
+					}
+				});
+				
+				btnCallForPartial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "Members of the Jury, vote for partial verdict!", playerRole, playerName));
+						sendMessage(new myMessage(5));
+					}
+				});
+				
+				btnDecide.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+					}
+				});
+			} else if (playerRole.equals("Prosecutor")) {
+				JButton btnBeginTrial = new JButton("PRESENT EVIDENCE");
+				btnBeginTrial.setForeground(Color.BLACK);
+				btnBeginTrial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 12));
+				btnBeginTrial.setBackground(SystemColor.controlHighlight);
+				btnBeginTrial.setBounds(360, 10, 165, 30);
+				mainPanel.add(btnBeginTrial);
+				
+				JButton btnCallForPartial = new JButton("OBJECT!");
+				btnCallForPartial.setForeground(Color.BLACK);
+				btnCallForPartial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnCallForPartial.setBackground(SystemColor.controlHighlight);
+				btnCallForPartial.setBounds(360, 50, 165, 30);
+				mainPanel.add(btnCallForPartial);
+				
+				JButton btnLeave = new JButton("LEAVE!");
+				btnLeave.setForeground(Color.BLACK);
+				btnLeave.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnLeave.setBackground(SystemColor.controlHighlight);
+				btnLeave.setBounds(360, 90, 165, 30);
+				mainPanel.add(btnLeave);
+				
+				//Events
+				btnBeginTrial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I would like to present an evidence!", playerRole, playerName));
+					}
+				});
+				
+				btnCallForPartial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I OBJECT!", playerRole, playerName));
+						sendMessage(new myMessage(6));
+					}
+				});
+				
+				btnLeave.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I'm leaving!!", playerRole, playerName));
+						sendMessage(new myMessage(7));
+					}
+				});
+			} else if (playerRole.equals("Defense Lawyer")) {
+				JButton btnBeginTrial = new JButton("PRESENT TESTIMONY");
+				btnBeginTrial.setForeground(Color.BLACK);
+				btnBeginTrial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 12));
+				btnBeginTrial.setBackground(SystemColor.controlHighlight);
+				btnBeginTrial.setBounds(360, 10, 165, 30);
+				mainPanel.add(btnBeginTrial);
+				
+				JButton btnCallForPartial = new JButton("OBJECT!");
+				btnCallForPartial.setForeground(Color.BLACK);
+				btnCallForPartial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnCallForPartial.setBackground(SystemColor.controlHighlight);
+				btnCallForPartial.setBounds(360, 50, 165, 30);
+				mainPanel.add(btnCallForPartial);
+				
+				JButton btnLeave = new JButton("LEAVE!");
+				btnLeave.setForeground(Color.BLACK);
+				btnLeave.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnLeave.setBackground(SystemColor.controlHighlight);
+				btnLeave.setBounds(360, 90, 165, 30);
+				mainPanel.add(btnLeave);
+				
+				//Events
+				btnBeginTrial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I would like to present a witness' testimony!", playerRole, playerName));
+					}
+				});
+				
+				btnCallForPartial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I OBJECT!", playerRole, playerName));
+						sendMessage(new myMessage(6));
+					}
+				});
+				
+				btnLeave.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sendMessage(new myMessage(3, "I'm leaving!!", playerRole, playerName));
+						sendMessage(new myMessage(7));
 					}
 				});
 			}
-			
-		});
+		}
 		
-	}
-	/*public void chatUI(String Name) {
-		EventQueue.invokeLater(new Runnable(){
-			@Override
-			public void run(){
-
-				
-				frame = new JFrame(Name);
-				frame.setBounds(100, 100, 450, 357);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				
-				JPanel panel = new JPanel();
-				panel.setLayout(null);
-				frame.getContentPane().add(panel, BorderLayout.CENTER);
-				frame.setResizable(false);
-				
-				textArea2.setBounds(0, 0, 432, 265);
-				panel.add(textArea2);
-				textArea2.setEditable(false);
-				
-				textField = new JTextField();
-				textField.setBounds(10, 277, 410, 22);
-				panel.add(textField);
-				textField.setColumns(10);
-				frame.setVisible(true);
-			}
-		
-			
-		});		
-		textField.addActionListener(new ActionListener() {
+		inputField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(!textField.getText().isEmpty()) {
-					sendMessage(new myMessage (3,textField.getText()));
-					textField.setText("");
-					
+				sendMessage(new myMessage (3,inputField.getText(), playerRole, playerName));
+				
+				if(playerRole.equals("Jury")) {
+					juryArea.append("\nYou: " + inputField.getText());
+				} else {
+					courtArea.append("\nYou: " + inputField.getText());
 				}
+				
+				inputField.setText("");
 			}
 		});
-	}*/
+	}
 	 	
 	public class player{
 		private String playerName;
