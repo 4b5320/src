@@ -8,10 +8,10 @@ public class test {
 	public static void main(String[] args) {
 		new Thread(new Runnable() {
 			public void run() {
-				new host(1);
+				new host(5678);
 			}
 		}).start();
-		new Thread(new Runnable() {
+		/*new Thread(new Runnable() {
 			public void run() {
 				new host(2);
 			}
@@ -25,7 +25,7 @@ public class test {
 			public void run() {
 				new host(4);
 			}
-		}).start();
+		}).start();*/
 	}
 /*
  * Story - display on the chat box at the start of the game

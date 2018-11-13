@@ -41,6 +41,7 @@ public class myMessage implements java.io.Serializable{
 	}
 	
 	/* OBJECT TYPES
+	 * 0 - LinkedList. List of IP adresses
 	 * 1 - Boolean. A prompt that this player is ready to continue
 	 * 2 - Integer. Roles
 	 * 

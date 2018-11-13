@@ -136,10 +136,7 @@ public class host extends JFrame{
 			try {
 				Thread.sleep(3);
 				progressBar.setValue(i);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			} catch (InterruptedException e1) { }
 		}
 		
 		new Thread(new Runnable() {
@@ -147,6 +144,15 @@ public class host extends JFrame{
 				startServer();
 			}
 		}).start();
+		
+		for(int i=1;i<=100;i++) {
+			try {
+				Thread.sleep(3);
+				progressBar.setValue(i);
+			} catch (InterruptedException e1) { }
+		}
+		
+		connectToServer(5678);
 	}
 
 	private void startServer(){
@@ -208,30 +214,24 @@ public class host extends JFrame{
 			} else {
 				//else connect to other hosts only to prevent connecting to itself
 				for(int i=0;i<256;i++) {
-					if (i != Byte.toUnsignedInt(localIP[3])) {
+					if (i != Byte.toUnsignedInt(localIP[3]) || true) {
 						final int j = i;
-						new Thread(new Runnable() {
-							public void run() {
-								String host = subnet + "." + j;
-								System.out.println("Trying " + host);
-
-								while(true) {
-									try {
-										if (InetAddress.getByName(host).isReachable(1000)) {
-											try {
-												startRunning(host, 5678);
-											} catch (SocketException e) {
-												//do nothing
-											}
-										}
-									} catch (UnknownHostException e) {
-										textArea.append("\nHost not available " + host);
-									} catch (IOException e) {
-										textArea.append("\nIO exception");
-									}
+						String host = subnet + "." + j;
+						System.out.println("Trying " + host);
+						
+						try {
+							if (InetAddress.getByName(host).isReachable(1000)) {
+								try {
+									startRunning(host, 5678);
+								} catch (SocketException e) {
+									//do nothing
 								}
 							}
-						}).start();
+						} catch (UnknownHostException e) {
+							textArea.append("\nHost not available " + host);
+						} catch (IOException e) {
+							textArea.append("\nIO exception");
+						}
 					}
 				}
 			}
