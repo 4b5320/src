@@ -15,7 +15,7 @@ public class host extends JFrame{
 	private int port = 5678;
 	private boolean readyToPlay = false;
 	private int playersReady = 0;
-	private double timeout = 30;
+	private int timeout = 30, timer = 0;
 	
 	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
@@ -309,21 +309,27 @@ public class host extends JFrame{
 					}else if(message.isType(4) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
 						if (playerRole.equals((String) message.getMessage())) {
 							inputField.setEnabled(true);
-							for (int i = 1; i <= 100; i++) {
-								progressBar.setValue(i);
+							progressBar.setMaximum(timeout);
+							timer = 0;
+							while (timeout > timer) {
+								progressBar.setValue(timer);
 								try {
-									Thread.sleep((long) (1000 * timeout / 100));
+									Thread.sleep(1000);
 								} catch (InterruptedException e) {
 								}
+								timer++;
 							}
 							inputField.setEnabled(false);
-							if (playerRole.equals("Prosecutor")) {
-								sendMessage(new myMessage(4, "Defense Lawyer"));
-							} else {
-								sendMessage(new myMessage(4, "Prosecutor"));
+							if (timer == timeout) {
+								if (playerRole.equals("Prosecutor")) {
+									sendMessage(new myMessage(4, "Defense Lawyer"));
+								} else {
+									sendMessage(new myMessage(4, "Prosecutor"));
+								} 
 							} 
 						} else {
-							inputField.setEnabled(false);
+							timer = timeout+1;
+							progressBar.setValue(timeout);
 						}
 					}else if(message.isType(5) && playerRole.equals("Jury")) {
 						int x = this.getX() + this.getWidth();
@@ -711,7 +717,7 @@ public class host extends JFrame{
 				btnCallForPartial.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						sendMessage(new myMessage(3, "I OBJECT!", playerRole, playerName));
-						sendMessage(new myMessage(6));
+						sendMessage(new myMessage(4, playerRole));
 					}
 				});
 				
@@ -753,7 +759,7 @@ public class host extends JFrame{
 				btnCallForPartial.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						sendMessage(new myMessage(3, "I OBJECT!", playerRole, playerName));
-						sendMessage(new myMessage(6));
+						sendMessage(new myMessage(4, playerRole));
 					}
 				});
 				
