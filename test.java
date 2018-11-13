@@ -8,10 +8,10 @@ public class test {
 	public static void main(String[] args) {
 		new Thread(new Runnable() {
 			public void run() {
-				new host(5678);
+				new host(1);
 			}
 		}).start();
-		/*new Thread(new Runnable() {
+		new Thread(new Runnable() {
 			public void run() {
 				new host(2);
 			}
@@ -21,7 +21,7 @@ public class test {
 				new host(3);
 			}
 		}).start();
-		new Thread(new Runnable() {
+		/*new Thread(new Runnable() {
 			public void run() {
 				new host(4);
 			}

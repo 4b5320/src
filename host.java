@@ -35,6 +35,9 @@ public class host extends JFrame{
 	private JTextArea juryArea;
 	private JTextField inputField = new JTextField();
 	private int guilty = 0, notguilty = 0, numberOfJury=0;
+	JRadioButton rdbtnNewRadioButton = new JRadioButton("Prosecutor");
+	JRadioButton rdbtnDefenseLawyer = new JRadioButton("Defense Lawyer");
+	ButtonGroup bg = new ButtonGroup();
 	
 	public host(int port) {
 		
@@ -152,7 +155,7 @@ public class host extends JFrame{
 			} catch (InterruptedException e1) { }
 		}
 		
-		connectToServer(5678);
+		//connectToServer(5678);
 	}
 
 	private void startServer(){
@@ -306,30 +309,44 @@ public class host extends JFrame{
 						} else if(!message.getRoleOfSource().equals("Jury")){
 							courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
 						}
-					}else if(message.isType(4) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
-						if (playerRole.equals((String) message.getMessage())) {
-							inputField.setEnabled(true);
-							progressBar.setMaximum(timeout);
-							timer = 0;
-							while (timeout > timer) {
-								progressBar.setValue(timer);
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
+					}else if(message.isType(4)) {
+						if(playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer")) {
+							if (playerRole.equals((String) message.getMessage())) {
+								inputField.setEnabled(true);
+								progressBar.setMaximum(timeout);
+								timer = 0;
+								while (timeout > timer) {
+									progressBar.setValue(timer);
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException e) {
+									}
+									timer++;
 								}
-								timer++;
-							}
-							inputField.setEnabled(false);
-							if (timer == timeout) {
-								if (playerRole.equals("Prosecutor")) {
-									sendMessage(new myMessage(4, "Defense Lawyer"));
-								} else {
-									sendMessage(new myMessage(4, "Prosecutor"));
+								inputField.setEnabled(false);
+								if (timer == timeout) {
+									if (playerRole.equals("Prosecutor")) {
+										sendMessage(new myMessage(4, "Defense Lawyer"));
+									} else {
+										sendMessage(new myMessage(4, "Prosecutor"));
+									} 
 								} 
-							} 
-						} else {
-							timer = timeout+1;
-							progressBar.setValue(timeout);
+							} else {
+								timer = timeout+1;
+								progressBar.setValue(timeout);
+								inputField.setEnabled(false);
+							}
+						} else if(playerRole.equals("Judge")) {
+							if("Prosecutor".equals((String) message.getMessage())) {
+								rdbtnNewRadioButton.setSelected(true);
+								System.out.println("Prosecutor is talking");
+							}else if("Defense Lawyer".equals((String) message.getMessage())) {
+								rdbtnDefenseLawyer.setSelected(true);
+								System.out.println("Defense Lawyer is talking");
+							}else {
+								bg.clearSelection();
+								System.out.println("Nobody is talking");
+							}
 						}
 					}else if(message.isType(5) && playerRole.equals("Jury")) {
 						int x = this.getX() + this.getWidth();
@@ -606,9 +623,6 @@ public class host extends JFrame{
 			mainPanel.add(btnNewButton);
 			
 			if(playerRole.equals("Judge")) {
-				ButtonGroup bg = new ButtonGroup();
-				JRadioButton rdbtnNewRadioButton = new JRadioButton("Prosecutor");
-				JRadioButton rdbtnDefenseLawyer = new JRadioButton("Defense Lawyer");
 				bg.add(rdbtnNewRadioButton);
 				bg.add(rdbtnDefenseLawyer);
 				
@@ -663,6 +677,9 @@ public class host extends JFrame{
 						btnBeginTrial.setEnabled(false);
 						sendMessage(new myMessage(3, "I allow the prosecutor to talk first.", playerRole, playerName));
 						sendMessage(new myMessage(4, "Prosecutor"));
+						rdbtnNewRadioButton.setSelected(true);
+						rdbtnNewRadioButton.setEnabled(false);
+						rdbtnDefenseLawyer.setEnabled(false);
 					}
 				});
 				
