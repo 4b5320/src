@@ -33,6 +33,7 @@ public class host extends JFrame{
 	private JTextArea courtArea;
 	private JTextArea juryArea;
 	private JTextField inputField = new JTextField();
+	private int guilty = 0, notguilty = 0, numberOfJury=0;
 	
 	public host(int port) {
 		
@@ -285,6 +286,12 @@ public class host extends JFrame{
 								rolebtn[value - 1].setEnabled(true);
 								roleTaken[value - 1] = false;
 							} 
+						} else {
+							if(value > 0) {
+								numberOfJury++;
+							} else {
+								numberOfJury--;
+							}
 						}
 					}else if(message.isType(3)) {
 						System.out.println("Received role: " + message.getRoleOfSource());
@@ -352,6 +359,15 @@ public class host extends JFrame{
 					}else if(message.isType(8)) {
 						courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": I vote for "
 								+ (String) message.getMessage() + "!");
+						if(((String) message.getMessage()).equals("GUILTY")) {
+							guilty++;
+						}else {
+							notguilty++;
+						}
+						
+						if(numberOfJury == guilty + notguilty) {
+							sendMessage(new myMessage(3, guilty + " out of " + numberOfJury + " voted GUILTY!", playerRole, playerName));
+						}
 					}
 					
 				} catch (ClassNotFoundException e) {
