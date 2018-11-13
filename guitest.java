@@ -53,66 +53,26 @@ public class guitest {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 540, 430);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0,0));
+		frame.setBounds(100, 100, 150, 165);
+		frame.getContentPane().setLayout(null);
 		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(null);
+		JLabel lblWhatIsYour = new JLabel("What is your vote?");
+		lblWhatIsYour.setForeground(Color.BLACK);
+		lblWhatIsYour.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+		lblWhatIsYour.setBounds(10, 10, 125, 23);
+		frame.getContentPane().add(lblWhatIsYour);
 		
-		JTextField inputField = new JTextField();
-		JTextArea courtArea = new JTextArea();
-		JScrollPane scrollPane1 = new JScrollPane();
-		JScrollPane scrollPane2;
-		JButton btnNewButton = new JButton("SEND");
-		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+		JButton btnNewButton = new JButton("GUILTY");
 		
-		frame.setSize(540, 440);
-		
-		//Setup the courtroom chat box
-		JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
-		lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
-		lblCourtroomsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-		scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
-		courtArea.setForeground(Color.BLACK);
-		courtArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-		courtArea.setEditable(false);
-		scrollPane1.setViewportView(courtArea);
-		scrollPane1.setBounds(10, 10, 340, 350);
-		mainPanel.add(scrollPane1);
-
-		//setup the message input field
-		inputField.setForeground(Color.BLACK);
-		inputField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-		inputField.setBounds(10, 370, 430, 20);
-		mainPanel.add(inputField);
-		
-		//setup the send button
 		btnNewButton.setForeground(Color.BLACK);
-		btnNewButton.setBackground(UIManager.getColor("Button.light"));
 		btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-		btnNewButton.setBounds(450, 370, 75, 20);
-		mainPanel.add(btnNewButton);
+		btnNewButton.setBounds(10, 45, 125, 30);
+		frame.getContentPane().add(btnNewButton);
 		
-		JButton btnBeginTrial = new JButton("PRESENT TESTIMONY");
-		btnBeginTrial.setForeground(Color.BLACK);
-		btnBeginTrial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 12));
-		btnBeginTrial.setBackground(SystemColor.controlHighlight);
-		btnBeginTrial.setBounds(360, 10, 165, 30);
-		mainPanel.add(btnBeginTrial);
-		
-		JButton btnCallForPartial = new JButton("OBJECT!");
-		btnCallForPartial.setForeground(Color.BLACK);
-		btnCallForPartial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
-		btnCallForPartial.setBackground(SystemColor.controlHighlight);
-		btnCallForPartial.setBounds(360, 50, 165, 30);
-		mainPanel.add(btnCallForPartial);
-		
-		JButton btnLeave = new JButton("LEAVE!");
-		btnLeave.setForeground(Color.BLACK);
-		btnLeave.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
-		btnLeave.setBackground(SystemColor.controlHighlight);
-		btnLeave.setBounds(360, 90, 165, 30);
-		mainPanel.add(btnLeave);
+		JButton btnNotGuilty = new JButton("NOT GUILTY");
+		btnNotGuilty.setForeground(Color.BLACK);
+		btnNotGuilty.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+		btnNotGuilty.setBounds(10, 90, 125, 30);
+		frame.getContentPane().add(btnNotGuilty);
 	}
 }

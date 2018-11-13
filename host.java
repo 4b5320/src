@@ -32,6 +32,7 @@ public class host extends JFrame{
 
 	private JTextArea courtArea;
 	private JTextArea juryArea;
+	private JTextField inputField = new JTextField();
 	
 	public host(int port) {
 		
@@ -298,13 +299,59 @@ public class host extends JFrame{
 							courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
 						}
 					}else if(message.isType(4) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
-						
+						inputField.setEnabled(playerRole.equals((String) message.getMessage()));
 					}else if(message.isType(5) && playerRole.equals("Jury")) {
-						
+						int x = this.getX() + this.getWidth();
+						int y = this.getY();
+						new Thread(new Runnable() {
+							public void run() {
+								JFrame votingFrame = new JFrame();
+								votingFrame.setVisible(true);
+								votingFrame.setResizable(false);
+								votingFrame.setBounds(x, y, 150, 165);
+								votingFrame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+								votingFrame.getContentPane().setLayout(null);
+								
+								JLabel lblWhatIsYour = new JLabel("What is your vote?");
+								lblWhatIsYour.setForeground(Color.BLACK);
+								lblWhatIsYour.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+								lblWhatIsYour.setBounds(10, 10, 125, 23);
+								votingFrame.getContentPane().add(lblWhatIsYour);
+								
+								JButton btnNewButton = new JButton("GUILTY");
+								btnNewButton.setForeground(Color.BLACK);
+								btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+								btnNewButton.setBounds(10, 45, 125, 30);
+								votingFrame.getContentPane().add(btnNewButton);
+								
+								JButton btnNotGuilty = new JButton("NOT GUILTY");
+								btnNotGuilty.setForeground(Color.BLACK);
+								btnNotGuilty.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+								btnNotGuilty.setBounds(10, 90, 125, 30);
+								votingFrame.getContentPane().add(btnNotGuilty);
+								
+								btnNewButton.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent e) {
+										sendMessage(new myMessage(8, "GUILTY", playerRole, playerName));
+										votingFrame.dispose();
+									}
+								});
+								
+								btnNotGuilty.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent e) {
+										sendMessage(new myMessage(8, "NOT GUILTY", playerRole, playerName));
+										votingFrame.dispose();
+									}
+								});
+							}
+						}).start();
 					}else if(message.isType(6) && playerRole.equals("Judge")) {
 						
 					}else if(message.isType(7) && playerRole.equals("Judge")) {
 						
+					}else if(message.isType(8)) {
+						courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": I vote for "
+								+ (String) message.getMessage() + "!");
 					}
 					
 				} catch (ClassNotFoundException e) {
@@ -314,10 +361,8 @@ public class host extends JFrame{
 					break;
 				}
 			}
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException | ConnectException e) {
 			e.printStackTrace();
-		} catch (ConnectException e) {
-			//do nothing
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -444,7 +489,6 @@ public class host extends JFrame{
 		mainPanel.setLayout(null);
 		this.setSize(540, 440);
 		
-		JTextField inputField = new JTextField();
 		courtArea = new JTextArea();
 		JScrollPane scrollPane1 = new JScrollPane();
 		JScrollPane scrollPane2;

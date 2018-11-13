@@ -53,6 +53,7 @@ public class myMessage implements java.io.Serializable{
 	 * 5 - Call for partial verdict
 	 * 6 - Objection
 	 * 7 - Ask to leave the courtroom
+	 * 8 - String. GUILTY OR NOT GUILTY. Jury's vote for guilty or not guilty
 	 * */
 }
 
