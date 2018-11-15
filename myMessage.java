@@ -57,7 +57,7 @@ public class myMessage implements java.io.Serializable{
 	 * 8 - String. GUILTY OR NOT GUILTY. Jury's vote for guilty or not guilty
 	 * 9 - A prompt saying the sender is a jury
 	 * 10 - timeout
-	 * 11 - objection
+	 * 11 - objection or order
 	 * */
 }
 

@@ -341,24 +341,28 @@ public class host extends JFrame{
 								progressBar.setMaximum(timeout);
 								timer = 0;
 								progressBar.setValue(timer);
-								while (timer < timeout) {
-									try {
-										Thread.sleep(1000);
-									} catch (InterruptedException e) {
+								new Thread(new Runnable() {
+									public void run() {
+										while (timer < timeout) {
+											try {
+												Thread.sleep(1000);
+											} catch (InterruptedException e) {
+											}
+											if(timer == timeout) {
+												progressBar.setValue(timer);
+												break;
+											}
+											timer++;
+											progressBar.setValue(timer);
+										}
+										if (timer == timeout) {
+											System.out.println(playerRole + " is finished talking");
+											sendMessage(new myMessage(10, playerRole));
+										}
 									}
-									if(timer == timeout) {
-										progressBar.setValue(timer);
-										break;
-									}
-									timer++;
-									progressBar.setValue(timer);
-								}
-								if (timer == timeout) {
-									System.out.println(playerRole + " is finished talking");
-									sendMessage(new myMessage(10, playerRole));
-								} 
+								}).start(); 
 							} else {
-								System.out.println(playerRole + " is NOT allowed to talk, time - " + timer);
+								timer = timeout+1;
 								progressBar.setValue(progressBar.getMaximum());
 								inputField.setEnabled(false);
 								btnSend.setEnabled(false);
@@ -449,6 +453,8 @@ public class host extends JFrame{
 					}else if(message.isType(11) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
 						timer = timeout;
 						//sendMessage(new myMessage(10, playerRole));
+					}else if(message.isType(12) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
+						timer = timeout;
 					}
 					
 					
@@ -752,7 +758,7 @@ public class host extends JFrame{
 					public void actionPerformed(ActionEvent e) {
 						courtArea.append("\nYou: ORDER IN THE COURT!");
 						sendMessage(new myMessage(3, "ORDER IN THE COURT!", playerRole, playerName));
-						sendMessage(new myMessage(4, (Object) null));
+						sendMessage(new myMessage(4, null));
 					}
 				});
 				
