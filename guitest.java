@@ -63,7 +63,6 @@ public class guitest {
 		frame.getContentPane().add(lblWhatIsYour);
 		
 		JButton btnNewButton = new JButton("GUILTY");
-		
 		btnNewButton.setForeground(Color.BLACK);
 		btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
 		btnNewButton.setBounds(10, 45, 125, 30);
