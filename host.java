@@ -1,57 +1,48 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.util.LinkedList;
-import java.util.UUID;
-
+import java.util.*;
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 
 public class host extends JFrame{
+	private static final long serialVersionUID = 1L;
 	private String ip;
 	private String playerName = null;
 	private String playerRole = null;
-	private LinkedList<player> players;
+	//private LinkedList<player> players;
 	private ServerSocket serverSocket;
-	private int port = 5678;
 	private boolean readyToPlay = false;
 	private int playersReady = 0;
 	private int timeout = 10, timer = 0;
-	
-	private static JFrame frame = new JFrame();
 	private JTextArea textArea = new JTextArea();
-	private JTextArea textArea2 = new JTextArea();
 	private JProgressBar progressBar = new JProgressBar();
 	private JButton btnConnect = new JButton("CONNECT");
 	private JButton btnStart = new JButton("START");
 	private JPanel mainPanel = new JPanel();
-	private JTextField nameField;
 	private JToggleButton[] rolebtn;
 	private Boolean[] roleTaken = {false, false, false, false};
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
 	private LinkedList<Object[]> clientList = new LinkedList<Object[]>();
-	
-
+	private LinkedList<ObjectOutputStream> outStreamList = new LinkedList<ObjectOutputStream>();
 	private JTextArea courtArea;
 	private JTextArea juryArea;
 	private JTextField inputField = new JTextField();
 	private int guilty = 0, notguilty = 0, numberOfJuror=0;
-	JRadioButton rdbtnNewRadioButton = new JRadioButton("Prosecutor");
-	JRadioButton rdbtnDefenseLawyer = new JRadioButton("Defense Lawyer");
-	ButtonGroup bg = new ButtonGroup();
-	JButton btnSend = new JButton("SEND");
-
-	private JButton btnPresent, btnObject, btnLeave;
+	private JRadioButton rdbtnNewRadioButton = new JRadioButton("Prosecutor");
+	private JRadioButton rdbtnDefenseLawyer = new JRadioButton("Defense Lawyer");
+	private ButtonGroup bg = new ButtonGroup();
+	private JButton btnSend = new JButton("SEND");
+	private JButton btnPresent, btnObject;
+	private LinkedList<Object[]> serverList = new LinkedList<Object[]>();
+	private String localIP = null;
+	private int localPort = new Random().nextInt(8999)+1000;
 	
-	public host(int port) {
+	public host() {
 		
-		//playerName = JOptionPane.showInputDialog("Input Username");
 		playerName = UUID.randomUUID().toString().split("-")[0];
-		
 		initGUI();
-		this.port = port;
 
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -60,23 +51,6 @@ public class host extends JFrame{
 						try {
 							byte[] localIP = InetAddress.getLocalHost().getAddress();
 							String subnet = Byte.toUnsignedInt(localIP[0]) + "." + Byte.toUnsignedInt(localIP[1]) + "." + Byte.toUnsignedInt(localIP[2]);
-							String myIP = subnet + "." + Byte.toUnsignedInt(localIP[3]);
-							
-							/*for(int i=1;i<=6;i++) {
-								final int ports = i;
-								new Thread(new Runnable() {
-									public void run() {
-										try {
-											if(port != ports) {
-												startRunning(myIP, ports);
-											}
-										} catch (SocketException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
-									}
-								}).start();
-							}*/
 							
 							JFrame inputFrame = new JFrame();
 							inputFrame.setVisible(true);
@@ -121,19 +95,7 @@ public class host extends JFrame{
 									for(String s : list) {
 										new Thread(new Runnable() {
 											public void run() {
-												try {
-													if(s.split(";").length>1) {
-														if(!s.split(";")[0].equals(myIP) || Integer.parseInt(s.split(";")[1]) != port) {
-															startRunning(s.split(";")[0], Integer.parseInt(s.split(";")[1]));
-														}
-														
-													} else {
-														startRunning(s, 5678);
-													}
-													
-												} catch (SocketException e1) {
-													e1.printStackTrace();
-												}
+												connectToServer(s.split(";")[0], Integer.parseInt(s.split(";")[1]));
 											}
 										}).start();
 									}
@@ -153,7 +115,8 @@ public class host extends JFrame{
 				readyToPlay = true;
 				btnStart.setEnabled(false);
 				sendMessage(new myMessage(1, true));
-				if(playersReady == players.size()) {
+				textArea.append("\nPlayers ready: " + playersReady + " outstreamlist: " + outStreamList.size());
+				if(playersReady == outStreamList.size()) {
 					//All players are ready
 					textArea.append("\nAll players are ready");
 					setupPanel2();
@@ -181,71 +144,66 @@ public class host extends JFrame{
 				progressBar.setValue(i);
 			} catch (InterruptedException e1) { }
 		}
-		
-		//connectToServer(5678);
 	}
 
 	private void startServer(){
+		//Start my server
 		try {
-			textArea.setEditable(false);
-			serverSocket = new ServerSocket(port);
-			ip = InetAddress.getLocalHost().getHostAddress();
-			textArea.append("Server IP Address: " + ip);
-			textArea.append("\nPort: " + port);
-			waitForClients();
+			serverSocket = new ServerSocket(localPort);
+			localIP = InetAddress.getLocalHost().getHostAddress();
+			this.setTitle("IP: " + localIP + "; Server port: " + localPort);
+
+			//Wait for handshakes
+			new Thread(new Runnable() {
+				public void run() {
+					while(true){
+						try {
+							Socket socket = serverSocket.accept();
+							outStreamList.add(new ObjectOutputStream(socket.getOutputStream()));
+							//Wait for the client to send his IP and server port, thread this
+							new Thread(new Runnable() {
+								public void run() {
+									try {
+										myMessage clientsInfo = (myMessage) new ObjectInputStream(socket.getInputStream()).readObject();
+										LinkedList<Object[]> infoList = ((LinkedList<Object[]>) clientsInfo.getMessage());
+										for(Object[] clientInfo : infoList) {
+											new Thread(new Runnable() {
+												public void run() {
+													String clientIP = (String) clientInfo[0];
+													int clientPort = (int) clientInfo[1];
+													boolean isServerUnique = true;
+													for(Object[] obj : serverList) {
+														if(((String) obj[0]).equals(clientIP) && ((int) obj[1]) == clientPort) {
+															isServerUnique = false;
+															break;
+														}
+													}
+													if(isServerUnique && (!localIP.equals(clientIP) || localPort != clientPort)) {
+														connectToServer(clientIP, clientPort);
+													}
+												}
+											}).start();
+										}
+									} catch (ClassNotFoundException | IOException e) {}
+								}
+							}).start();
+						} catch (SocketException e) {
+							break;
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}).start();
 		} catch (BindException e) {
 			JOptionPane.showMessageDialog(new JFrame(), "Port number already in use, cannot start server", "Startup Error", JOptionPane.OK_OPTION);
-			System.exit(ERROR);
+			System.exit(1);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-	}
-	
-	//This is used when player wants to host the game
-	private void waitForClients() {
-		textArea.append("\nConnected hosts:\n");
-		
-		players = new LinkedList<player>();
-		while(true){
-			try {
-				players.add(new player(serverSocket.accept()));
-				
-				myMessage s = (myMessage) new ObjectInputStream(players.getLast().socket.getInputStream()).readObject();
-
-				String a = (String) ((Object[]) s.getMessage())[0];
-				int b = (int) ((Object[]) s.getMessage())[1];
-				boolean unique = true;
-				for(Object[] obj : clientList) {
-					if(((String) obj[0]).equals(a) && (int) obj[1] == b) {
-						unique = false;
-						break;
-					}
-				}
-				
-				new Thread(new Runnable() {
-					public void run() {
-						try {
-							startRunning(a, b);
-						} catch (SocketException e) {}
-					}
-				}).start();
-				sendMessage(s);
-				
-				textArea.append("\nConnected to " + players.getLast().toString());
-				
-				for(Object[] obj : clientList) {
-					players.getLast().outStream.writeObject(new myMessage(0, obj));
-				}
-			} catch (SocketException e) {
-				break;
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
+	
+	
 	
 	private void connectToServer(int port) {
 		try {
@@ -293,7 +251,224 @@ public class host extends JFrame{
 			e.printStackTrace();
 		}
 	}
-
+	
+	private void connectToServer(String clientIP, int clientPort) {
+		if(localIP.equals(clientIP) && localPort == clientPort) {
+			return;
+		}
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					//Connect to my client's server
+					System.out.println(localPort + " connects to "
+							+ clientIP + " " + clientPort + " Servers: " + serverList.size());
+					serverList.add(new Object[] {clientIP, clientPort});
+					System.out.println("Server List of " + localPort);
+					for(Object[] a : serverList) {
+						System.out.println(a[1]);
+					}
+					Socket server = new Socket(clientIP, clientPort);
+					//Send my IP and port and colleagues
+					LinkedList<Object[]> temp = new LinkedList<Object[]>();
+					for(int i=0;i<serverList.size();i++) {
+						temp.add(serverList.get(i));
+					}
+					temp.add(new Object[] {localIP, localPort});
+					new ObjectOutputStream(server.getOutputStream()).writeObject(new myMessage(0, temp));
+					
+					//Set up the input stream and Receive messages from this server
+					receiveMessage(new ObjectInputStream(server.getInputStream()));
+					
+				} catch (SocketException e) {
+					
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EOFException e) {} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+	
+	private void receiveMessage(ObjectInputStream in) {
+		while(true) {
+			try {
+				myMessage message = (myMessage) in.readObject();
+				if(message.isType(1) && message.getMessage().toString().equals("true")) {
+					System.out.println("Message received.");
+					playersReady++;
+					textArea.append("\nPlayers ready: " + playersReady + " outstreamlist: " + outStreamList.size());
+					if(readyToPlay && playersReady == outStreamList.size()) {
+						//All players are ready
+						textArea.append("\nAll players are ready");
+						setupPanel2();
+					}
+				} else if(message.isType(2)) {
+					int value = Integer.parseInt(message.getMessage().toString());
+					if (Math.abs(value) != 4) {
+						if (value > 0) {
+							rolebtn[value - 1].setSelected(true);
+							rolebtn[value - 1].setEnabled(false);
+							roleTaken[value - 1] = true;
+						} else {
+							value = value * -1;
+							rolebtn[value - 1].setSelected(false);
+							rolebtn[value - 1].setEnabled(true);
+							roleTaken[value - 1] = false;
+						} 
+					}
+				}else if(message.isType(3)) {
+					System.out.println("Received role: " + message.getRoleOfSource());
+					if(playerRole.equals("Juror")) {
+						if(message.getRoleOfSource().equals("Juror")) {
+							juryArea.append("\nJuror " + message.getSource() + ": " + (String) message.getMessage());
+						} else {
+							courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
+							courtArea.setCaretPosition(courtArea.getText().length());
+						}
+					} else if(!message.getRoleOfSource().equals("Juror")){
+						courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": " + (String) message.getMessage());
+					}
+				}else if(message.isType(4)) {
+					System.out.println((String) message.getMessage() + " is the allowed to talk");
+					if(playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer")) {
+						if (playerRole.equals((String) message.getMessage())) {
+							inputField.setEnabled(true);
+							btnSend.setEnabled(true);
+							btnPresent.setEnabled(true);
+							btnObject.setEnabled(false);
+							progressBar.setMaximum(timeout);
+							timer = 0;
+							progressBar.setValue(timer);
+							new Thread(new Runnable() {
+								public void run() {
+									while (timer < timeout) {
+										try {
+											Thread.sleep(1000);
+										} catch (InterruptedException e) {
+										}
+										if(timer == timeout) {
+											progressBar.setValue(timer);
+											break;
+										}
+										timer++;
+										progressBar.setValue(timer);
+									}
+									if (timer == timeout) {
+										System.out.println(playerRole + " is finished talking");
+										sendMessage(new myMessage(10, playerRole));
+									}
+								}
+							}).start(); 
+						} else {
+							timer = timeout+1;
+							progressBar.setValue(progressBar.getMaximum());
+							inputField.setEnabled(false);
+							btnSend.setEnabled(false);
+							btnPresent.setEnabled(false);
+							btnObject.setEnabled(true);
+						}
+					} else if(playerRole.equals("Judge")) {
+						if("Prosecutor".equals((String) message.getMessage())) {
+							rdbtnNewRadioButton.setSelected(true);
+						}else if("Defense Lawyer".equals((String) message.getMessage())) {
+							rdbtnDefenseLawyer.setSelected(true);
+							System.out.println("Defense Lawyer is talking");
+						}else {
+							bg.clearSelection();
+							System.out.println("Nobody is talking");
+						}
+						System.out.println((String) message.getMessage() + " is talking");
+					}
+				}else if(message.isType(5) && playerRole.equals("Juror")) {
+					int x = this.getX() + this.getWidth();
+					int y = this.getY();
+					new Thread(new Runnable() {
+						public void run() {
+							JFrame votingFrame = new JFrame();
+							votingFrame.setVisible(true);
+							votingFrame.setResizable(false);
+							votingFrame.setBounds(x, y, 150, 165);
+							votingFrame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+							votingFrame.getContentPane().setLayout(null);
+							
+							JLabel lblWhatIsYour = new JLabel("What is your vote?");
+							lblWhatIsYour.setForeground(Color.BLACK);
+							lblWhatIsYour.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+							lblWhatIsYour.setBounds(10, 10, 125, 23);
+							votingFrame.getContentPane().add(lblWhatIsYour);
+							
+							JButton btnNewButton = new JButton("GUILTY");
+							btnNewButton.setForeground(Color.BLACK);
+							btnNewButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+							btnNewButton.setBounds(10, 45, 125, 30);
+							votingFrame.getContentPane().add(btnNewButton);
+							
+							JButton btnNotGuilty = new JButton("NOT GUILTY");
+							btnNotGuilty.setForeground(Color.BLACK);
+							btnNotGuilty.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+							btnNotGuilty.setBounds(10, 90, 125, 30);
+							votingFrame.getContentPane().add(btnNotGuilty);
+							
+							btnNewButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									sendMessage(new myMessage(8, "GUILTY", playerRole, playerName));
+									votingFrame.dispose();
+								}
+							});
+							
+							btnNotGuilty.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									sendMessage(new myMessage(8, "NOT GUILTY", playerRole, playerName));
+									votingFrame.dispose();
+								}
+							});
+						}
+					}).start();
+				}else if(message.isType(6) && playerRole.equals("Judge")) {
+					
+				}else if(message.isType(7) && playerRole.equals("Judge")) {
+					
+				}else if(message.isType(8)) {
+					courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": I vote for "
+							+ (String) message.getMessage() + "!");
+					if(((String) message.getMessage()).equals("GUILTY")) {
+						guilty++;
+					}else {
+						notguilty++;
+					}
+					
+					if(numberOfJuror == guilty + notguilty) {
+						sendMessage(new myMessage(3, guilty + " out of " + numberOfJuror + " voted GUILTY!", playerRole, playerName));
+					}
+				}else if(message.isType(9) && playerRole.equals("Judge")) {
+					numberOfJuror++;
+				}else if(message.isType(10) && playerRole.equals("Judge")) {
+					if("Prosecutor".equals((String) message.getMessage())) {
+						sendMessage(new myMessage(4, "Defense Lawyer"));
+					}else {
+						sendMessage(new myMessage(4, "Prosecutor"));
+					}
+				}else if(message.isType(11) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
+					timer = timeout;
+					//sendMessage(new myMessage(10, playerRole));
+				}else if(message.isType(12) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
+					timer = timeout;
+				}
+				
+				
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SocketException e) {
+				textArea.append("\nConnection with the server was lost.");
+				break;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
 	
 	private void startRunning(String serverIPAdd, int port) throws SocketException{
 		try {
@@ -324,7 +499,7 @@ public class host extends JFrame{
 						System.out.println("Message received.");
 						playersReady++;
 						textArea.append("\n" + playersReady + " players are ready.");
-						if(readyToPlay && playersReady == players.size()) {
+						if(readyToPlay && playersReady == serverList.size()) {
 							//All players are ready
 							textArea.append("\nAll players are ready");
 							setupPanel2();
@@ -499,8 +674,12 @@ public class host extends JFrame{
 	}
 	
 	private void sendMessage(myMessage message) {
-		for(int i=0;i<players.size();i++) {
-			players.get(i).writeObject(message);
+		for(ObjectOutputStream outStream : outStreamList) {
+			try {
+				outStream.writeObject(message);
+			} catch (IOException e) {
+			
+			}
 		}
 	}
 	
@@ -530,7 +709,6 @@ public class host extends JFrame{
 		
 		btnStart.setBackground(Color.LIGHT_GRAY);
 		btnStart.setForeground(Color.BLACK);
-		btnStart.setEnabled(false);
 		btnStart.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
 		btnStart.setBounds(220, 10, 200, 30);
 		mainPanel.add(btnStart);
@@ -879,7 +1057,7 @@ public class host extends JFrame{
 		});
 	}
 	 	
-	public class player{
+	/*public class player{
 		private String playerName;
 		private Socket socket;
 		private ObjectOutputStream outStream;		
@@ -921,6 +1099,6 @@ public class host extends JFrame{
 		public String toString() {
 			return "Player["+getName()+";"+socket.getInetAddress().toString()+";"+socket.getPort()+"]";
 		}
-	}
+	}*/
 
 }

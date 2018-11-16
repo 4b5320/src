@@ -9,13 +9,13 @@ import javax.swing.JOptionPane;
 public class test {
 
 	public static void main(String[] args) {
-		int n = 2;
+		int n = 3;
 		
 		for(int i=1;i<=n;i++) {
 			final int port = i;
 			new Thread(new Runnable() {
 				public void run() {
-					new host(port);
+					new host();
 				}
 			}).start();
 		}
