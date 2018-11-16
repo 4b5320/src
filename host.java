@@ -31,7 +31,7 @@ public class host extends JFrame{
 	private JToggleButton[] rolebtn;
 	private Boolean[] roleTaken = {false, false, false, false};
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
-	private LinkedList<String> clientList = new LinkedList<String>();
+	private LinkedList<Object[]> clientList = new LinkedList<Object[]>();
 	
 
 	private JTextArea courtArea;
@@ -62,7 +62,7 @@ public class host extends JFrame{
 							String subnet = Byte.toUnsignedInt(localIP[0]) + "." + Byte.toUnsignedInt(localIP[1]) + "." + Byte.toUnsignedInt(localIP[2]);
 							String myIP = subnet + "." + Byte.toUnsignedInt(localIP[3]);
 							
-							for(int i=1;i<=6;i++) {
+							/*for(int i=1;i<=6;i++) {
 								final int ports = i;
 								new Thread(new Runnable() {
 									public void run() {
@@ -76,9 +76,9 @@ public class host extends JFrame{
 										}
 									}
 								}).start();
-							}
+							}*/
 							
-							/*JFrame inputFrame = new JFrame();
+							JFrame inputFrame = new JFrame();
 							inputFrame.setVisible(true);
 							inputFrame.getContentPane().setBackground(new Color(192, 192, 192));
 							inputFrame.setResizable(false);
@@ -141,7 +141,7 @@ public class host extends JFrame{
 								}
 							});
 							
-							ipArea.requestFocus();*/
+							ipArea.requestFocus();
 						} catch (UnknownHostException e) { }
 					}
 				}).start();
@@ -209,15 +209,39 @@ public class host extends JFrame{
 		while(true){
 			try {
 				players.add(new player(serverSocket.accept()));
+				
+				myMessage s = (myMessage) new ObjectInputStream(players.getLast().socket.getInputStream()).readObject();
+
+				String a = (String) ((Object[]) s.getMessage())[0];
+				int b = (int) ((Object[]) s.getMessage())[1];
+				boolean unique = true;
+				for(Object[] obj : clientList) {
+					if(((String) obj[0]).equals(a) && (int) obj[1] == b) {
+						unique = false;
+						break;
+					}
+				}
+				
+				new Thread(new Runnable() {
+					public void run() {
+						try {
+							startRunning(a, b);
+						} catch (SocketException e) {}
+					}
+				}).start();
+				sendMessage(s);
+				
 				textArea.append("\nConnected to " + players.getLast().toString());
 				
-				//Checks if ready to start, ready if there are at least 4 players
-				if(players.size() >= 1) {
-					btnStart.setEnabled(true);
+				for(Object[] obj : clientList) {
+					players.getLast().outStream.writeObject(new myMessage(0, obj));
 				}
 			} catch (SocketException e) {
 				break;
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -269,33 +293,34 @@ public class host extends JFrame{
 			e.printStackTrace();
 		}
 	}
-	
-	private boolean clientAlready(String host) {
-		
-		for(String client : clientList) {
-			if(client.equals(host)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
+
 	
 	private void startRunning(String serverIPAdd, int port) throws SocketException{
 		try {
 			//Connect to the server
 			Socket server = new Socket(InetAddress.getByName(serverIPAdd), port);
 			textArea.append("\nConnected to port " + port + " at " + serverIPAdd);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {}
+			new ObjectOutputStream(server.getOutputStream()).writeObject(new myMessage(0, new Object[] {ip, port}));
 			
 			//Set up the input stream
 			ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
-			//clientList.add(serverIPAdd);
+			clientList.add(new Object[] {serverIPAdd, port});
 			//Receive messages from the server
 			while(true) {
 				try {
 					myMessage message = (myMessage) in.readObject();
-					if(message.isType(1) && message.getMessage().toString().equals("true")) {
+					if(message.isType(0)) {
+						String a = (String) ((Object[]) message.getMessage())[0];
+						int b = (int) ((Object[]) message.getMessage())[1];
+						
+						
+						
+						startRunning(a, b);
+					}else if(message.isType(1) && message.getMessage().toString().equals("true")) {
 						System.out.println("Message received.");
 						playersReady++;
 						textArea.append("\n" + playersReady + " players are ready.");

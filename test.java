@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 public class test {
 
 	public static void main(String[] args) {
-		int n = 3;
+		int n = 2;
 		
 		for(int i=1;i<=n;i++) {
 			final int port = i;
