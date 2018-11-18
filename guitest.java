@@ -1,5 +1,7 @@
 
 import java.awt.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionListener;
@@ -14,14 +16,20 @@ import java.awt.event.KeyEvent;
 public class guitest {
 
 	private JFrame frame;
+	ImagePanel mainPanel = new ImagePanel(new ImageIcon(this.getClass().getResource("/images/maxresdefault.jpg")).getImage().getScaledInstance(1200, 850, Image.SCALE_DEFAULT));
+	ImagePanel subPanel = new ImagePanel(new ImageIcon(this.getClass().getResource("/images/subPanelBG.png")).getImage().getScaledInstance(650, 490, Image.SCALE_DEFAULT));
+	JLabel status;
 	JButton btnStart = new JButton("START");
-	JButton btnProfile = new JButton("PROFILE");
+	JButton btnAvatar = new JButton("AVATAR");
 	JButton btnSettings = new JButton("SETTINGS");
 	JButton btnQuit = new JButton("QUIT");
 	JButton btnBack = new JButton("< BACK");
 	JButton btnHost = new JButton("HOST");
 	JButton btnJoin = new JButton("JOIN");
-	private JTextField textField;
+	JButton btnReady = new JButton("READY");
+	JButton btnFind = new JButton("FIND GAME");
+	JButton btnCancel = new JButton("CANCEL");
+	JTextField textField = new JTextField();
 
 	/**
 	 * Launch the application.
@@ -43,221 +51,177 @@ public class guitest {
 	 * Create the application.
 	 */
 	public guitest() {
-		initialize();
+		frame = new JFrame("CourtSim v1.0 2018");
+		frame.setResizable(false);
+		frame.setBounds(100, 100, 1200, 850);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setContentPane(mainPanel);
+		initializeComponents();
+		addActionListeners();
 	}
 		
-	
+	class ImagePanel extends JPanel {
+
+		  private Image img;
+
+		  public ImagePanel(String img) {
+		    this(new ImageIcon(img).getImage());
+		  }
+
+		  public ImagePanel(Image img) {
+		    this.img = img;
+		    Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+		    setPreferredSize(size);
+		    setMinimumSize(size);
+		    setMaximumSize(size);
+		    setSize(size);
+		    setLayout(null);
+		  }
+
+		  public void paintComponent(Graphics g) {
+		    g.drawImage(img, 0, 0, null);
+		  }
+
+		}
 	
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
-		frame = new JFrame("CourtSim v1.0 2018");
-		frame.setAlwaysOnTop(true);
-		frame.setResizable(false);
-		frame.setBounds(100, 100, 1200, 850);
-		frame.getContentPane().setLayout(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JLabel lblNewLabel = new JLabel("CourtSim");
-		lblNewLabel.setForeground(Color.BLACK);
-		lblNewLabel.setFont(new Font("MV Boli", Font.BOLD, 80));
-		frame.getContentPane().add(lblNewLabel);
-		
-		
-		JLabel lblACourtroomSimulator = new JLabel("A courtroom simulator...");
-		lblACourtroomSimulator.setForeground(Color.BLACK);
-		lblACourtroomSimulator.setFont(new Font("MV Boli", Font.BOLD, 25));
-		frame.getContentPane().add(lblACourtroomSimulator);
-		btnStart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new Thread(new Runnable() {
-					public void run() {
-						start();
-					}
-				}).start();
-			}
-		});
-		
-		btnStart.setForeground(Color.BLACK);
-		btnStart.setBorderPainted(false);
-		btnStart.setContentAreaFilled(false);
-		btnStart.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnStart.setBounds(700, 250, 350, 50);
-		frame.getContentPane().add(btnStart);
-		
-		btnProfile.setForeground(Color.BLACK);
-		btnProfile.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnProfile.setContentAreaFilled(false);
-		btnProfile.setBorderPainted(false);
-		btnProfile.setBounds(700, 330, 350, 50);
-		frame.getContentPane().add(btnProfile);
-		
-		btnSettings.setForeground(Color.BLACK);
-		btnSettings.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnSettings.setContentAreaFilled(false);
-		btnSettings.setBorderPainted(false);
-		btnSettings.setBounds(700, 410, 350, 50);
-		frame.getContentPane().add(btnSettings);
-		
-		btnQuit.setForeground(Color.BLACK);
-		btnQuit.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnQuit.setContentAreaFilled(false);
-		btnQuit.setBorderPainted(false);
-		btnQuit.setBounds(700, 490, 350, 50);
-		frame.getContentPane().add(btnQuit);
-		
-		//Animation
-		new Thread(new Runnable() {
-			public void run() {
-				int i = frame.getWidth();
-				while(i>70) {
-					lblNewLabel.setBounds(i, 50, 390, 90);
-					frame.repaint();
-					frame.revalidate();
-					try {
-						Thread.sleep(1);
-					} catch (InterruptedException e1) { }
-					i -= 10;
-				}
-			}
-		}).start();
-		new Thread(new Runnable() {
-			public void run() {
-				int i = 0;
-				while(i<270) {
-					lblACourtroomSimulator.setBounds(i, 130, 335, 30);
-					frame.repaint();
-					frame.revalidate();
-					try { Thread.sleep(10); } catch (InterruptedException e1) { }
-					i += 3;
-				}
-
-				btnStart.addMouseListener(new MouseAdapter() {
-					public void mouseEntered(MouseEvent e) { btnStart.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-					public void mouseExited(MouseEvent e) { btnStart.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
-				});
-				btnProfile.addMouseListener(new MouseAdapter() {
-					public void mouseEntered(MouseEvent e) { btnProfile.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-					public void mouseExited(MouseEvent e) { btnProfile.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
-				});
-				btnSettings.addMouseListener(new MouseAdapter() {
-					public void mouseEntered(MouseEvent e) { btnSettings.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-					public void mouseExited(MouseEvent e) { btnSettings.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
-				});
-				btnQuit.addMouseListener(new MouseAdapter() {
-					public void mouseEntered(MouseEvent e) { btnQuit.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-					public void mouseExited(MouseEvent e) { btnQuit.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
-				});
-			}
-		}).start();
-		
-		JLabel status = new JLabel("Game ID: ");
-		status.setForeground(Color.BLACK);
-		status.setFont(new Font("MV Boli", Font.PLAIN, 40));
-		status.setBounds(90,250, 195, 50);
-		frame.getContentPane().add(status);
-		
-		textField = new JTextField();
-		textField.setFont(new Font("MV Boli", Font.PLAIN, 40));
-		textField.setHorizontalAlignment(SwingConstants.CENTER);
-		textField.setBounds(285, 250, 160, 50);
-		textField.setOpaque(false);
-		textField.setBorder(null);
-		frame.getContentPane().add(textField);
-		
-		JButton btnJoin_1 = new JButton("JOIN");
-		btnJoin_1.setBackground(Color.LIGHT_GRAY);
-		btnJoin_1.setForeground(Color.BLACK);
-		btnJoin_1.setFont(new Font("MV Boli", Font.PLAIN, 40));
-		btnJoin_1.setBounds(450, 250, 135, 50);
-		frame.getContentPane().add(btnJoin_1);
+	private void initializeComponents() {
+		mainPanel.setLayout(null);
+		createLabel("CourtSim", new Rectangle(70, 50, 390, 90), 80, mainPanel);
+		createLabel("A courtroom simulator...", new Rectangle(270, 130, 335, 30), 25, mainPanel);
+		status = createLabel("", new Rectangle(0,750, 1150, 50), 40, mainPanel);
+		status.setHorizontalAlignment(SwingConstants.TRAILING);
+		configureButton(btnStart, 700, 250, mainPanel);
+		configureButton(btnAvatar, 700, 330, mainPanel);
+		configureButton(btnSettings, 700, 410, mainPanel);
+		configureButton(btnQuit, 700, 490, mainPanel);
+		subPanel.setLayout(null);
+		subPanel.setBackground(Color.CYAN);
+		subPanel.setBounds(50, 210, 650, 490);
+		mainPanel.add(subPanel);
 	}
 	
-	private void start() {
-		btnBack.setForeground(Color.BLACK);
-		btnBack.setBorderPainted(false);
-		btnBack.setContentAreaFilled(false);
-		btnBack.setFont(new Font("MV Boli", Font.BOLD, 60));
-		btnBack.setBounds(700, 250, 350, 50);
-		frame.getContentPane().add(btnBack);
-		
-		btnHost.setForeground(Color.BLACK);
-		btnHost.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnHost.setContentAreaFilled(false);
-		btnHost.setBorderPainted(false);
-		btnHost.setBounds(700, 330, 350, 50);
-		frame.getContentPane().add(btnHost);
-		
-		btnJoin.setForeground(Color.BLACK);
-		btnJoin.setFont(new Font("MV Boli", Font.PLAIN, 50));
-		btnJoin.setContentAreaFilled(false);
-		btnJoin.setBorderPainted(false);
-		btnJoin.setBounds(700, 410, 350, 50);
-		frame.getContentPane().add(btnJoin);
-		
-		frame.remove(btnStart);
-		frame.remove(btnProfile);
-		frame.remove(btnSettings);
-		frame.remove(btnQuit);
-		frame.repaint();
-		frame.revalidate();
-
-		btnBack.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) { btnBack.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-			public void mouseExited(MouseEvent e) { btnBack.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
+	private JLabel createLabel(String title, Rectangle bounds, int fontSize, Component parent) {
+		JLabel label = new JLabel(title);
+		label.setForeground(Color.BLACK);
+		label.setFont(new Font("MV Boli", Font.BOLD, fontSize));
+		label.setBounds(bounds);
+		((JPanel) parent).add(label);
+		return label;
+	}
+	
+	private void configureButton(JButton btn, int x, int y, Component parent) {
+		btn.setForeground(Color.BLACK);
+		btn.setBorderPainted(false);
+		btn.setContentAreaFilled(false);
+		btn.setFont(new Font("MV Boli", Font.PLAIN, 60));
+		btn.setBounds(x, y, 500, 50);
+		btn.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) { if(btn.isEnabled()) { btn.setFont(new Font("MV Boli", Font.BOLD, 65)); } }
+			public void mouseExited(MouseEvent e) { if(btn.isEnabled()) { btn.setFont(new Font("MV Boli", Font.PLAIN, 60)); } }
 		});
-		btnHost.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) { btnHost.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-			public void mouseExited(MouseEvent e) { btnHost.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
+		((JPanel) parent).add(btn);
+	}
+	
+	private void addActionListeners() {
+		btnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				configureButton(btnBack, 700, 250, mainPanel);
+				configureButton(btnHost, 700, 330, mainPanel);
+				configureButton(btnJoin, 700, 410, mainPanel);
+				
+				mainPanel.remove(btnStart);
+				mainPanel.remove(btnAvatar);
+				mainPanel.remove(btnSettings);
+				mainPanel.remove(btnQuit);
+				mainPanel.repaint();
+				mainPanel.revalidate();
+			}
 		});
-		btnJoin.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) { btnJoin.setFont(new Font("MV Boli", Font.BOLD, 60)); }
-			public void mouseExited(MouseEvent e) { btnJoin.setFont(new Font("MV Boli", Font.PLAIN, 50)); }
+		btnQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
 		});
-		
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new Thread(new Runnable() {
-					public void run() {
-						frame.remove(btnBack);
-						frame.remove(btnHost);
-						frame.remove(btnJoin);
-						frame.getContentPane().add(btnStart);
-						frame.getContentPane().add(btnProfile);
-						frame.getContentPane().add(btnSettings);
-						frame.getContentPane().add(btnQuit);
-						frame.repaint();
-						frame.revalidate();
-					}
-				}).start();
+				mainPanel.remove(btnBack);
+				mainPanel.remove(btnHost);
+				mainPanel.remove(btnJoin);
+				mainPanel.add(btnStart);
+				mainPanel.add(btnAvatar);
+				mainPanel.add(btnSettings);
+				mainPanel.add(btnQuit);
+				mainPanel.repaint();
+				mainPanel.revalidate();
 			}
 		});
 		btnHost.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				host();
+				configureButton(btnReady, 700, 250, mainPanel);
+				configureButton(btnCancel, 700, 330, mainPanel);
+				btnReady.setEnabled(false);
+				
+				mainPanel.remove(btnBack);
+				mainPanel.remove(btnHost);
+				mainPanel.remove(btnJoin);
+				status.setText("WAITING FOR PLAYERS TO JOIN...");
+				
+				createLabel("Game ID: " + (new Random().nextInt(8999)+1000), new Rectangle(50, 50, 450, 50), 40, subPanel);
+				
+				mainPanel.repaint();
+				mainPanel.revalidate();
 			}
 		});
-	}
-	
-	private void host() {
-		frame.remove(btnBack);
-		frame.remove(btnHost);
-		frame.remove(btnJoin);
-		JLabel status = new JLabel("Waiting for other players...");
-		status.setForeground(Color.BLACK);
-		status.setFont(new Font("MV Boli", Font.PLAIN, 40));
-		status.setBounds(0,750, 1150, 50);
-		status.setHorizontalAlignment(SwingConstants.TRAILING);
-		
-		JLabel gameID = new JLabel("Game ID: " + (new Random().nextInt(8999)+1000));
-		gameID.setForeground(Color.BLACK);
-		gameID.setFont(new Font("MV Boli", Font.PLAIN, 40));
-		gameID.setBounds(90,250, 450, 50);
-		frame.getContentPane().add(gameID);
-		
-		frame.getContentPane().add(status);
-		frame.repaint();
-		frame.revalidate();
+		btnJoin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				configureButton(btnReady, 700, 250, mainPanel);
+				configureButton(btnFind, 700, 330, mainPanel);
+				configureButton(btnCancel, 700, 410, mainPanel);
+				btnReady.setEnabled(false);
+				btnFind.setEnabled(false);
+				
+				mainPanel.remove(btnBack);
+				mainPanel.remove(btnHost);
+				mainPanel.remove(btnJoin);
+				
+				createLabel("Game ID: ", new Rectangle(50, 50, 450, 50), 40, subPanel);
+				textField.setFont(new Font("MV Boli", Font.PLAIN, 40));
+				textField.setHorizontalAlignment(SwingConstants.CENTER);
+				textField.setBounds(250, 50, 300, 50);
+				subPanel.add(textField);
+				
+				mainPanel.repaint();
+				mainPanel.revalidate();
+				textField.requestFocus();
+			}
+		});
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.remove(btnReady);
+				mainPanel.remove(btnFind);
+				mainPanel.remove(btnCancel);
+				subPanel.removeAll();
+				status.setText(null);
+				
+				mainPanel.add(btnBack);
+				mainPanel.add(btnHost);
+				mainPanel.add(btnJoin);
+				status.setText("");
+				mainPanel.repaint();
+				mainPanel.revalidate();
+			}
+		});
+		textField.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				if(textField.getText().length() > 0) {
+					btnFind.setEnabled(true);
+				} else {
+					btnFind.setEnabled(false);
+				}
+			}
+		});
 	}
 }
