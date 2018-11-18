@@ -11,7 +11,6 @@ public class host extends JFrame{
 	private String ip;
 	private String playerName = null;
 	private String playerRole = null;
-	//private LinkedList<player> players;
 	private ServerSocket serverSocket;
 	private boolean readyToPlay = false;
 	private int playersReady = 0;
@@ -491,9 +490,6 @@ public class host extends JFrame{
 					if(message.isType(0)) {
 						String a = (String) ((Object[]) message.getMessage())[0];
 						int b = (int) ((Object[]) message.getMessage())[1];
-						
-						
-						
 						startRunning(a, b);
 					}else if(message.isType(1) && message.getMessage().toString().equals("true")) {
 						System.out.println("Message received.");
