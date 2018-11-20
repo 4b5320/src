@@ -35,22 +35,16 @@ public class guitest{
 	
 	//Network Variables
 	private String localIP = null;
-	private int localPort;
+	private int localPort = -1;
 	private LinkedList<ObjectOutputStream> outStreamList = new LinkedList<ObjectOutputStream>();
 	private LinkedList<Object[]> serverList = new LinkedList<Object[]>();
-	private boolean serverFound;
 
 	public static void main(String[] args) {
 		new Thread(new Runnable() {
 			public void run() {
 				new guitest();
 			}
-		}).start();;
-		new Thread(new Runnable() {
-			public void run() {
-				new guitest();
-			}
-		}).start();;
+		}).start();
 	}
 
 	public guitest() {
@@ -147,7 +141,6 @@ public class guitest{
 				status.setText("WAITING FOR PLAYERS TO JOIN...");
 				
 				do {
-					localPort = new Random().nextInt(8999)+1000;
 					try {
 						localIP = InetAddress.getLocalHost().getHostAddress();
 					} catch (UnknownHostException exp) {
@@ -159,6 +152,16 @@ public class guitest{
 						localPort = -1;
 					}
 				}while(localIP == null || localPort == -1);
+				
+				byte[] localIP;
+				do {
+					try {
+						localIP = InetAddress.getLocalHost().getAddress();
+					} catch (UnknownHostException e1) {
+						localIP = null;
+					}
+				}while(localIP == null);
+				createLabel("Game ID: " + localPort + Byte.toUnsignedInt(localIP[3]), new Rectangle(50, 50, 450, 50), 40, subPanel);
 				
 				mainPanel.repaint();
 				mainPanel.revalidate();
@@ -191,6 +194,18 @@ public class guitest{
 		});
 		btnFind.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				do {
+					try {
+						localIP = InetAddress.getLocalHost().getHostAddress();
+					} catch (UnknownHostException exp) {
+						localIP = null;
+					}
+					try {
+						startServer();
+					} catch (BindException exp) {
+						localPort = -1;
+					}
+				}while(localIP == null || localPort == -1);
 				btnFind.setEnabled(false);
 				textField.setEnabled(false);
 				new Thread(new Runnable() {
@@ -206,29 +221,16 @@ public class guitest{
 						String subnet = Byte.toUnsignedInt(localIP[0]) + "." + Byte.toUnsignedInt(localIP[1]) + "." + Byte.toUnsignedInt(localIP[2]);
 						
 						status.setText("Finding game host...");
-						serverFound = false;
-						for(int i=0;i<256;i++) {
-							final int j = i;
-							String host = subnet + "." + j;
-							new Thread(new Runnable() {
-								public void run() {
-									System.out.println("Trying " + host);
-									try {
-										if (InetAddress.getByName(host).isReachable(1000)) {
-											connectToServer(host, Integer.parseInt(textField.getText()));
-										}
-									} catch (UnknownHostException uhe) { } catch (IOException ioe) { }
-								}
-							}).start();
-						}
+						String clientIP = subnet + "." + textField.getText().substring(4, textField.getText().length());
+						int clientPort = Integer.parseInt(textField.getText().substring(0, 4));
 						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) { }
-						if(!serverFound) {
+							connectToServer(clientIP, clientPort);
+						} catch (UnknownHostException e) {
 							status.setText("Game not found!");
 							btnFind.setEnabled(true);
 							textField.setEnabled(true);
 						}
+						
 					}
 				}).start();
 			}
@@ -264,9 +266,9 @@ public class guitest{
 	private void startServer() throws BindException{
 		//Start my server
 		try {
+			localPort = new Random().nextInt(8999)+1000;
 			status.setText("Starting server...");
 			ServerSocket serverSocket = new ServerSocket(localPort);
-			createLabel("Game ID: " + localPort, new Rectangle(50, 50, 450, 50), 40, subPanel);
 			status.setText("Waiting for players...");
 			
 			//Wait for handshakes
@@ -275,6 +277,7 @@ public class guitest{
 					while(true){
 						try {
 							Socket socket = serverSocket.accept();
+							System.out.println("ClientConnected");
 							outStreamList.add(new ObjectOutputStream(socket.getOutputStream()));
 							//Wait for the client to send his IP and server port, thread this
 							new Thread(new Runnable() {
@@ -324,15 +327,12 @@ public class guitest{
 			}
 		} catch (NullPointerException e1) { }
 		try {
+			System.out.println("ClientIP: " + clientIP + " clientPort: " + clientPort);
 			//Connect to my client's server
+			Socket server = new Socket(clientIP, clientPort);
 			serverList.add(new Object[] {clientIP, clientPort});
 			System.out.println(localPort + " connects to "
-					+ clientIP + " " + clientPort + " Servers: " + serverList.size());
-			for(Object[] a : serverList) {
-				System.out.println(a[1]);
-			}
-			Socket server = new Socket(clientIP, clientPort);
-			serverFound = true;
+					+ clientIP + " " + clientPort );
 			//Send my IP and port and colleagues
 			LinkedList<Object[]> temp = new LinkedList<Object[]>();
 			for(int i=0;i<serverList.size();i++) {
