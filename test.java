@@ -18,19 +18,15 @@ public class test {
  * Evidences - display on as list, (evidence name, evidence description)
  * 
  * witnesses - an evidence that only the prosecutor knows(witness name, witness' testimony)
- * Examples:
- * 	Story:
+ * Example case 1:
+ * 	Story: 
  * 		
  * 	Evidences:
  *		
  * 	
  * 	Witness:
  * 		
- * 
- * 
- * 
- * 
- * 
+ *
  * 
  * */
 }
