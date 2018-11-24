@@ -90,8 +90,8 @@ public class gene{
 			jMin = j0;
 		}
 		
-		for(int i=0;i<10;i++) {
-			for(int j=0;j<10;j++) {
+		for(int i=0;i<row;i++) {
+			for(int j=0;j<col;j++) {
 				//Compute the angle
 				if(i != i0 || j != j0) {
 					if(i >= iMin && i <= iMax && j >= jMin && j <= jMax) {
