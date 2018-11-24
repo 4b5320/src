@@ -34,6 +34,17 @@ public class chromosome{
 			}
 		}
 		
+		for(i=0;i<row;i++) {
+			for(int j=0;j<col;j++) {
+				if(genes[i][j].isTurbinePresent()) {
+					System.out.print("1 ");
+				} else {
+					System.out.print("0 ");
+				}
+			}
+			System.out.println();
+		}
+		
 		computeFitness();
 	}
 	
@@ -60,6 +71,7 @@ public class chromosome{
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
 		
 		fitness = cost/totalPower;
+		System.out.println("Fitness: " + fitness + "\n");
 	}
 	
 	protected double getFitness() {

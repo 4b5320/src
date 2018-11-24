@@ -2,9 +2,10 @@ package cs190;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Scanner;
 public class GA {
-	private final int maxPop = 500;
-	private final int maxGen = 5000;
+	private final int maxPop = 100;
+	private final int maxGen = 50000;
 	private int gen = 1;
 	private chromosome[] population;
 	private int row, col, N;
@@ -33,12 +34,6 @@ public class GA {
 				population[i].computeFitness();
 			}
 			
-			double totFit = 0;
-			for(chromosome c : population) {
-				totFit += c.getFitness();
-			}
-			System.out.println("Gen " + gen + ": " + (totFit/population.length) + "\t" + totFit + "\t" + population.length);
-			
 			
 			//tournament selection
 			chromosome[] newPop = new chromosome[maxPop];
@@ -53,7 +48,7 @@ public class GA {
 				
 				chromosome winner = competitors[0];
 				for(chromosome c : competitors) {
-					if(c.getFitness() < winner.getFitness()) {
+					if(Double.compare(c.getFitness(), winner.getFitness()) < 0) {
 						winner = c;
 					}
 				}
@@ -61,18 +56,9 @@ public class GA {
 				//newPop[i] = parents[i];
 			}
 			
-			LinkedList<chromosome> list = new LinkedList<chromosome>();
-			for(int i=0;i<population.length;i++) {
-				list.add(population[i]);
-			}
+			chromosome[] fittest = findFittest(population);
 			for(int i=0;i<parents.length;i++) {
-				int best = 0;
-				for(int j=1;j<list.size();j++) {
-					if(population[j].getFitness() < population[0].getFitness()) {
-						best = j;
-					}
-				}
-				newPop[i] = list.remove(best);
+				newPop[i] = fittest[i];
 			}
 			
 			
@@ -80,7 +66,9 @@ public class GA {
 			for(int i=parents.length;i<newPop.length;i++) {
 				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)]);
 				newPop[i] = offsprings[0];
-				newPop[++i] = offsprings[1];
+				try {
+					newPop[++i] = offsprings[1];
+				} catch (ArrayIndexOutOfBoundsException e) { }
 			}
 			
 			//mutation
@@ -96,9 +84,32 @@ public class GA {
 			}
 			
 			gen++;
+			//new Scanner(System.in).nextLine();
 		}
 	}
-
+	
+	
+	private chromosome[] findFittest(chromosome[] pop) {
+		LinkedList<chromosome> list = new LinkedList<chromosome>();
+		for(chromosome c : pop) {
+			list.add(c);
+		}
+		
+		chromosome[] fittest = new chromosome[(int) Math.floor(maxPop*0.3)];
+		for(int i=0;i<fittest.length;i++) {
+			int best = 0;
+			for(int j=1;j<list.size();j++) {
+				
+				if(Double.compare(list.get(j).getFitness(), list.get(best).getFitness()) < 0) {
+					best = j;
+				}
+			}
+			fittest[i] = list.get(best);
+			list.remove(best);
+		}
+		
+		return fittest;
+	}
 }
 
 
