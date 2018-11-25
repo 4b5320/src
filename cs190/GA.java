@@ -8,9 +8,10 @@ public class GA {
 	private final int maxGen = 50000;
 	private int gen = 1;
 	private chromosome[] population;
+	
 	private int row, col, N;
 	private double crossRate = 0.7;
-	private int m = 10; //tournament size
+	private int m = 3; //tournament size
 	private Random rand = new Random();
 
 	public GA(int row, int col, int N) {
@@ -38,12 +39,30 @@ public class GA {
 			//tournament selection
 			chromosome[] newPop = new chromosome[maxPop];
 			chromosome[] parents = new chromosome[(int) Math.floor(newPop.length*(1-crossRate))];
+			chromosome[] drafted = new chromosome[parents.length];
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[m];
 				
 				//choose competitors
 				for(int j=0;j<competitors.length;j++) {
+					
 					competitors[j] = population[rand.nextInt(population.length)];
+					//cant compete with itself
+					for(int k=0;k<=j;k++){
+						if(competitors[k]==competitors[j]){
+							competitors[j]=population[rand.nextInt(population.length)];
+							k=0;
+						}
+						//cant compete again
+						for(int l=0;l<=j;l++){
+							if(drafted[l]==competitors[j]){
+								competitors[j]=population[rand.nextInt(population.length)];
+								l=j+1;
+								k=0;
+							}
+						}
+					}
+					drafted[j]=competitors[j];
 				}
 				
 				chromosome winner = competitors[0];
