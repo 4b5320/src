@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
 public class GA {
-	private final int maxPop = 100;
+	private final int maxPop = 500;
 	private final int maxGen = 50000;
 	private int gen = 1;
 	private chromosome[] population;
@@ -73,13 +73,13 @@ public class GA {
 					}
 				}
 				parents[i] = winner;
-				//newPop[i] = parents[i];
+				newPop[i] = parents[i];
 			}
 			
-			chromosome[] fittest = findFittest(population);
+			/*chromosome[] fittest = findFittest(population);
 			for(int i=0;i<parents.length;i++) {
 				newPop[i] = fittest[i];
-			}
+			}*/
 			
 			
 			//crossover
