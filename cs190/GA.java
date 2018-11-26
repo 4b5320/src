@@ -48,7 +48,7 @@ public class GA {
 					
 					competitors[j] = population[rand.nextInt(population.length)];
 					//cant compete with itself
-					for(int k=0;k<=j;k++){
+					for(int k=0;k<j;k++){
 						if(competitors[k]==competitors[j]){
 							competitors[j]=population[rand.nextInt(population.length)];
 							k=0;
