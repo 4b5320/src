@@ -63,6 +63,7 @@ public class GA {
 						}
 					}
 					drafted[j]=competitors[j];
+					//dito nag iinfinite loop
 				}
 				
 				chromosome winner = competitors[0];
@@ -103,7 +104,7 @@ public class GA {
 			}
 			
 			gen++;
-			//new Scanner(System.in).nextLine();
+			new Scanner(System.in).nextLine();
 		}
 	}
 	
