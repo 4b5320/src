@@ -1,23 +1,53 @@
 package cs190;
 
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 public class GA {
 	private final int maxPop = 500;
-	private final int maxGen = 500;
+	private final int maxGen = 5000;
 	private int gen = 1;
 	private chromosome[] population;
-	
 	private int row, col, N;
 	private double crossRate = 0.7;
 	private int m = 5; //tournament size
 	private Random rand = new Random();
+	
+	JFrame frame = new JFrame();
+	private JLabel[][] matrix;
 
 	public GA(int row, int col, int N) {
 		this.row = row;
 		this.col = col;
 		this.N = N;
+		
+		frame = new JFrame();
+		frame.getContentPane().setBackground(Color.WHITE);
+		frame.setBounds(100, 100, 525, 545);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
+		
+		matrix = new JLabel[row][col];
+		
+		for(int i=0;i<matrix.length;i++) {
+			for(int j=0;j<matrix[i].length;j++) {
+				matrix[i][j] = new JLabel("");
+				matrix[i][j].setOpaque(true);
+				matrix[i][j].setBackground(Color.BLACK);
+				matrix[i][j].setBounds(51*i, 51*j, 50, 50);
+				frame.getContentPane().add(matrix[i][j]);
+			}
+		}
+		
+		frame.repaint();
+		frame.revalidate();
 	}
 	
 
@@ -38,8 +68,26 @@ public class GA {
 					best = i;
 				}
 			}
-			//System.out.printf("Gen %d %.9f\n", gen, population[best].getFitness());
 			System.out.println("Gen " + gen + " " + population[best].getFitness());
+			
+			//color the gui
+			final int x = best;
+			new Thread(new Runnable() {
+				public void run() {
+					for(int i=0;i<matrix.length;i++) {
+						for(int j=0;j<matrix[i].length;j++) {
+							if(population[x].isTurbinePresentA(i, j)) {
+								matrix[j][i].setBackground(Color.BLACK);
+							} else {
+								matrix[j][i].setBackground(Color.WHITE);
+							}
+						}
+					}
+					frame.repaint();
+					frame.revalidate();
+				}
+			}).start();
+			
 			
 			
 			//tournament selection
