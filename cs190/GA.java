@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.Scanner;
 public class GA {
 	private final int maxPop = 500;
-	private final int maxGen = 50000;
+	private final int maxGen = 500;
 	private int gen = 1;
 	private chromosome[] population;
 	
@@ -31,12 +31,15 @@ public class GA {
 		
 		while(gen < maxGen) {
 			//Compute fitness
-			double totFit = 0;
+			int best = 0;
 			for(int i=0;i<population.length;i++) {
 				population[i].computeFitness();
-				totFit += population[i].getFitness();
+				if(Double.compare(population[i].getFitness(), population[best].getFitness()) < 0) {
+					best = i;
+				}
 			}
-			System.out.printf("Gen %d %.8f\n", gen, ((float) totFit/population.length));
+			//System.out.printf("Gen %d %.9f\n", gen, population[best].getFitness());
+			System.out.println("Gen " + gen + " " + population[best].getFitness());
 			
 			
 			//tournament selection
@@ -89,7 +92,7 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(0.02);
+				newPop[i].mutate(0.1);
 				newPop[i].repair();
 			}
 			
@@ -102,6 +105,8 @@ public class GA {
 			gen++;
 			
 		}
+		
+		System.out.println(population[0].toString());
 	}
 }
 
