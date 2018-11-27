@@ -62,13 +62,15 @@ public class GA {
 		while(gen < maxGen) {
 			//Compute fitness
 			int best = 0;
+			double totalFit = 0;
 			for(int i=0;i<population.length;i++) {
 				population[i].computeFitness();
+				totalFit += population[i].getFitness();
 				if(Double.compare(population[i].getFitness(), population[best].getFitness()) < 0) {
 					best = i;
 				}
 			}
-			System.out.println("Gen " + gen + " " + population[best].getFitness());
+			System.out.println("Gen " + gen + " " + totalFit/population.length);
 			
 			//color the gui
 			final int x = best;
@@ -140,7 +142,7 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(0.1);
+				newPop[i].mutate(0.02);
 				newPop[i].repair();
 			}
 			
