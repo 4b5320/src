@@ -34,23 +34,12 @@ public class chromosome{
 			}
 		}
 		
-		for(i=0;i<row;i++) {
-			for(int j=0;j<col;j++) {
-				if(genes[i][j].isTurbinePresent()) {
-					System.out.print("1 ");
-				} else {
-					System.out.print("0 ");
-				}
-			}
-			System.out.println();
-		}
-		
 		computeFitness();
 	}
 	
 	protected void computeFitness() {
 		
-		//determine affected turbines by the wake of each turbine
+		/*//determine affected turbines by the wake of each turbine
 		for(int i=0;i<genes.length;i++) {
 			for(int j=0;j<genes[i].length;j++) {
 				if(genes[i][j].isTurbinePresent())
@@ -65,13 +54,22 @@ public class chromosome{
 				genes[i][j].setWindSpeed(getWindSpeedAt(i, j));
 				totalPower += genes[i][j].getPower();
 			}
+		}*/
+		
+		double totalPower = 0;
+		for(int i=0;i<genes.length;i++) {
+			for(int j=0;j<genes[i].length;j++) {
+				if((i==0 || i==genes.length-1) && genes[i][j].isTurbinePresent()) {
+					totalPower++;
+				}
+			}
 		}
 		
 		//Compute the cost
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
 		
-		fitness = cost/totalPower;
-		System.out.println("Fitness: " + fitness + "\n");
+		fitness = N/totalPower - 1;
+		//System.out.println("Fitness: " + fitness);
 	}
 	
 	protected double getFitness() {
@@ -217,5 +215,22 @@ public class chromosome{
 		double r0 = 20; // rotor radius
 		
 		return getWindSpeedAt(i0, j0)*(1-(2*a*(r0/(r0+beta*x))));
+	}
+	
+	public String toString() {
+		String s = "";
+		
+		for(gene[] a : genes) {
+			for(gene b : a) {
+				if(b.isTurbinePresent()) {
+					s = s + (1 + " ");
+				} else {
+					s = s + (0 + " ");
+				}
+			}
+			s = s + "\n";
+		}
+		
+		return s;
 	}
 }

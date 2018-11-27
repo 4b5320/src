@@ -11,7 +11,7 @@ public class GA {
 	
 	private int row, col, N;
 	private double crossRate = 0.7;
-	private int m = 3; //tournament size
+	private int m = 5; //tournament size
 	private Random rand = new Random();
 
 	public GA(int row, int col, int N) {
@@ -31,55 +31,51 @@ public class GA {
 		
 		while(gen < maxGen) {
 			//Compute fitness
+			double totFit = 0;
 			for(int i=0;i<population.length;i++) {
 				population[i].computeFitness();
+				totFit += population[i].getFitness();
 			}
+			System.out.printf("Gen %d %.5f\n", gen, ((float) totFit/population.length));
 			
 			
 			//tournament selection
 			chromosome[] newPop = new chromosome[maxPop];
 			chromosome[] parents = new chromosome[(int) Math.floor(newPop.length*(1-crossRate))];
-			chromosome[] drafted = new chromosome[parents.length];
+			
+			//convert the population to a list of contestants for the tournament
+			LinkedList<chromosome> cont = new LinkedList<chromosome>();
+			for(chromosome c : population) {
+				cont.add(c);
+			}
+			
+			//choose the parents
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[m];
 				
-				//choose competitors
+				//choose competitors of the tournament
 				for(int j=0;j<competitors.length;j++) {
-					
-					competitors[j] = population[rand.nextInt(population.length)];
-					//cant compete with itself
-					for(int k=0;k<j;k++){
-						if(competitors[k]==competitors[j]){
-							competitors[j]=population[rand.nextInt(population.length)];
-							k=0;
-						}
-						//cant compete again
-						for(int l=0;l<=j;l++){
-							if(drafted[l]==competitors[j]){
-								competitors[j]=population[rand.nextInt(population.length)];
-								l=j+1;
-								k=0;
-							}
-						}
-					}
-					drafted[j]=competitors[j];
-					//dito nag iinfinite loop
+					competitors[j] = cont.remove(rand.nextInt(cont.size()));
 				}
 				
+				//show the competitors
+				
+				
+				//tournament!
 				chromosome winner = competitors[0];
-				for(chromosome c : competitors) {
-					if(Double.compare(c.getFitness(), winner.getFitness()) < 0) {
-						winner = c;
+				for(int j=1;j<competitors.length;j++) {
+					if(Double.compare(competitors[j].getFitness(), winner.getFitness()) < 0) {
+						cont.add(winner);
+						winner = competitors[j];
+					} else {
+						cont.add(competitors[j]);
 					}
 				}
+				
+				//choose the winner as a parent and add to next gen
 				parents[i] = winner;
 				newPop[i] = parents[i];
 			}
-			
-			/*chromosome[] fittest = findFittest(population);
-			for(int i=0;i<parents.length;i++) {
-				newPop[i] = fittest[i];
-			}*/
 			
 			
 			//crossover
@@ -93,7 +89,7 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(0.01);
+				newPop[i].mutate(0.02);
 				newPop[i].repair();
 			}
 			
@@ -104,31 +100,8 @@ public class GA {
 			}
 			
 			gen++;
-			new Scanner(System.in).nextLine();
+			
 		}
-	}
-	
-	
-	private chromosome[] findFittest(chromosome[] pop) {
-		LinkedList<chromosome> list = new LinkedList<chromosome>();
-		for(chromosome c : pop) {
-			list.add(c);
-		}
-		
-		chromosome[] fittest = new chromosome[(int) Math.floor(maxPop*0.3)];
-		for(int i=0;i<fittest.length;i++) {
-			int best = 0;
-			for(int j=1;j<list.size();j++) {
-				
-				if(Double.compare(list.get(j).getFitness(), list.get(best).getFitness()) < 0) {
-					best = j;
-				}
-			}
-			fittest[i] = list.get(best);
-			list.remove(best);
-		}
-		
-		return fittest;
 	}
 }
 
