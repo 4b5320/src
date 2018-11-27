@@ -65,15 +65,6 @@ public class chromosome{
 			}
 		}
 		
-		/*double totalPower = 0;
-		for(int i=0;i<genes.length;i++) {
-			for(int j=0;j<genes[i].length;j++) {
-				if((i==0 || i==genes.length-1) && genes[i][j].isTurbinePresent()) {
-					totalPower++;
-				}
-			}
-		}*/
-		
 		//Compute the cost
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
 		
