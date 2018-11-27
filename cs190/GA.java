@@ -36,7 +36,7 @@ public class GA {
 				population[i].computeFitness();
 				totFit += population[i].getFitness();
 			}
-			System.out.printf("Gen %d %.5f\n", gen, ((float) totFit/population.length));
+			System.out.printf("Gen %d %.8f\n", gen, ((float) totFit/population.length));
 			
 			
 			//tournament selection

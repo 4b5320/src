@@ -38,8 +38,17 @@ public class chromosome{
 	}
 	
 	protected void computeFitness() {
+
+		//clear wind speed
+		for(int i=0;i<genes.length;i++) {
+			for(int j=0;j<genes[i].length;j++) {
+				boolean temp = genes[i][j].isTurbinePresent();
+				genes[i][j] = new gene(row, col, i, j);
+				genes[i][j].setTurbinePresence(temp);
+			}
+		}
 		
-		/*//determine affected turbines by the wake of each turbine
+		//determine affected turbines by the wake of each turbine
 		for(int i=0;i<genes.length;i++) {
 			for(int j=0;j<genes[i].length;j++) {
 				if(genes[i][j].isTurbinePresent())
@@ -47,28 +56,28 @@ public class chromosome{
 			}
 		}
 		
-		//compute wind speed at each turbine
+		//compute wind speed at each turbine given wakes
 		double totalPower = 0;
 		for(int i=0;i<genes.length;i++) {
 			for(int j=0;j<genes[i].length;j++) {
 				genes[i][j].setWindSpeed(getWindSpeedAt(i, j));
 				totalPower += genes[i][j].getPower();
 			}
-		}*/
+		}
 		
-		double totalPower = 0;
+		/*double totalPower = 0;
 		for(int i=0;i<genes.length;i++) {
 			for(int j=0;j<genes[i].length;j++) {
 				if((i==0 || i==genes.length-1) && genes[i][j].isTurbinePresent()) {
 					totalPower++;
 				}
 			}
-		}
+		}*/
 		
 		//Compute the cost
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
 		
-		fitness = cost/totalPower - 1;
+		fitness = cost/totalPower;
 		//System.out.println("Fitness: " + fitness);
 	}
 	
