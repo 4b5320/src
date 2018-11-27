@@ -68,7 +68,7 @@ public class chromosome{
 		//Compute the cost
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
 		
-		fitness = N/totalPower - 1;
+		fitness = cost/totalPower - 1;
 		//System.out.println("Fitness: " + fitness);
 	}
 	
