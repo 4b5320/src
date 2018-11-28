@@ -6,9 +6,10 @@ import java.util.Random;
 public class chromosome{
 	private gene[][] genes;
 	private int N;
-	private int row, col, theta = 45; //angle of wind direction
+	private int row, col, theta = 0; //angle of wind direction
 	private Random rand = new Random();
 	private double u, fitness;
+	private boolean isMultipleWindDirection = true;
 	
 	public chromosome(int row, int col, int N, double u) {
 		genes = new gene[row][col];
@@ -38,32 +39,38 @@ public class chromosome{
 	}
 	
 	protected void computeFitness() {
-
-		//clear wind speed
-		for(int i=0;i<genes.length;i++) {
-			for(int j=0;j<genes[i].length;j++) {
-				boolean temp = genes[i][j].isTurbinePresent();
-				genes[i][j] = new gene(row, col, i, j);
-				genes[i][j].setTurbinePresence(temp);
-			}
-		}
-		
-		//determine affected turbines by the wake of each turbine
-		for(int i=0;i<genes.length;i++) {
-			for(int j=0;j<genes[i].length;j++) {
-				if(genes[i][j].isTurbinePresent())
-					genes[i][j].computeWake(i, j, theta);
-			}
-		}
+		double totalPower = 0;
+		theta = 0; //reset the theta to 0
 		
 		//compute wind speed at each turbine given wakes
-		double totalPower = 0;
-		for(int i=0;i<genes.length;i++) {
-			for(int j=0;j<genes[i].length;j++) {
-				genes[i][j].setWindSpeed(getWindSpeedAt(i, j));
-				totalPower += genes[i][j].getPower();
+		while(theta < 360) {
+			
+			//clear wind speed
+			for (int i = 0; i < genes.length; i++) {
+				for (int j = 0; j < genes[i].length; j++) {
+					boolean temp = genes[i][j].isTurbinePresent();
+					genes[i][j] = new gene(row, col, i, j);
+					genes[i][j].setTurbinePresence(temp);
+				}
 			}
+			//determine affected turbines by the wake of each turbine
+			for (int i = 0; i < genes.length; i++) {
+				for (int j = 0; j < genes[i].length; j++) {
+					if (genes[i][j].isTurbinePresent())
+						genes[i][j].computeWake(i, j, theta);
+				}
+			}
+			
+			for (int i = 0; i < genes.length; i++) {
+				for (int j = 0; j < genes[i].length; j++) {
+					genes[i][j].setWindSpeed(getWindSpeedAt(i, j));
+					totalPower += genes[i][j].getPower();
+				}
+			} 
+			
+			theta += 10;
 		}
+		
 		
 		//Compute the cost
 		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));

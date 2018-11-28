@@ -36,7 +36,7 @@ public class gene{
 	
 	protected void setWindSpeed(double u) {
 		this.u = u;
-		power = 0.3*Math.pow(u, 3);
+		power = 0.3*Math.pow(u, 3)*((double) 10/360);
 	}
 	
 	protected double getPower() {
