@@ -6,7 +6,7 @@ import java.util.Random;
 public class chromosome{
 	private gene[][] genes;
 	private int N;
-	private int row, col, theta = 0; //angle of wind direction
+	private int row, col, theta = 45; //angle of wind direction
 	private Random rand = new Random();
 	private double u, fitness;
 	
@@ -74,6 +74,10 @@ public class chromosome{
 	
 	protected double getFitness() {
 		return fitness;
+	}
+	
+	protected String getPowerAt(int i, int j) {
+		return String.valueOf((int) Math.floor(100*genes[i][j].getWindSpeed()/12));
 	}
 	
 	protected chromosome[] crossWith(chromosome c) {
@@ -199,13 +203,7 @@ public class chromosome{
 	}
 	
 	private double getWindSpeedDueTo(int i0, int j0, int i, int j) {//Jensen
-		double x = 0;
-		if(theta == 0) {
-			x = 2000*(i - i0);
-		} else {
-			System.out.println("Angle not yet available");
-			System.exit(1);
-		}
+		double x = 2000*Math.sqrt(Math.pow(Math.abs(i - i0), 2) + Math.pow(Math.abs(j - j0), 2));
 		
 		double CT = 0.88; //thrust coefficient
 		double a =  0.5 - 0.5*(Math.sqrt(1-CT)); //axial induction

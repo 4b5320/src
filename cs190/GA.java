@@ -9,13 +9,13 @@ import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 public class GA {
-	private final int maxPop = 500;
-	private final int maxGen = 5000;
+	private final int maxPop = 500, maxGen = 5000;
 	private int gen = 1;
 	private chromosome[] population;
 	private int row, col, N;
-	private double crossRate = 0.7;
+	private double crossRate = 0.7, mutationRate = 0.02;
 	private int m = 5; //tournament size
 	private Random rand = new Random();
 	
@@ -40,7 +40,7 @@ public class GA {
 			for(int j=0;j<matrix[i].length;j++) {
 				matrix[i][j] = new JLabel("");
 				matrix[i][j].setOpaque(true);
-				matrix[i][j].setBackground(Color.BLACK);
+				matrix[i][j].setHorizontalAlignment(SwingConstants.CENTER);
 				matrix[i][j].setBounds(51*i, 51*j, 50, 50);
 				frame.getContentPane().add(matrix[i][j]);
 			}
@@ -49,7 +49,6 @@ public class GA {
 		frame.repaint();
 		frame.revalidate();
 	}
-	
 
 	protected void startGA() {
 		population = new chromosome[maxPop];
@@ -70,7 +69,7 @@ public class GA {
 					best = i;
 				}
 			}
-			System.out.println("Gen " + gen + " " + totalFit/population.length);
+			System.out.println("Gen " + gen + " " + Math.abs((totalFit/population.length)-population[best].getFitness()));
 			
 			//color the gui
 			final int x = best;
@@ -78,10 +77,10 @@ public class GA {
 				public void run() {
 					for(int i=0;i<matrix.length;i++) {
 						for(int j=0;j<matrix[i].length;j++) {
-							if(population[x].isTurbinePresentA(i, j)) {
-								matrix[j][i].setBackground(Color.BLACK);
+							if(Integer.parseInt(population[x].getPowerAt(i, j)) == 0) {
+								matrix[j][i].setText("");
 							} else {
-								matrix[j][i].setBackground(Color.WHITE);
+								matrix[j][i].setText(population[x].getPowerAt(i, j));
 							}
 						}
 					}
@@ -93,7 +92,7 @@ public class GA {
 			
 			
 			//tournament selection
-			chromosome[] newPop = new chromosome[maxPop];
+			chromosome[] newPop = new chromosome[population.length];
 			chromosome[] parents = new chromosome[(int) Math.floor(newPop.length*(1-crossRate))];
 			
 			//convert the population to a list of contestants for the tournament
@@ -106,13 +105,16 @@ public class GA {
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[m];
 				
+				
+				
 				//choose competitors of the tournament
 				for(int j=0;j<competitors.length;j++) {
-					competitors[j] = cont.remove(rand.nextInt(cont.size()));
+					try {
+						competitors[j] = cont.remove(rand.nextInt(cont.size()));
+					} catch (Exception e) {
+						System.out.println(cont.isEmpty() + " " + population.length);
+					}
 				}
-				
-				//show the competitors
-				
 				
 				//tournament!
 				chromosome winner = competitors[0];
@@ -142,7 +144,7 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(0.02);
+				newPop[i].mutate(mutationRate);
 				newPop[i].repair();
 			}
 			
@@ -155,8 +157,6 @@ public class GA {
 			gen++;
 			
 		}
-		
-		System.out.println(population[0].toString());
 	}
 }
 
