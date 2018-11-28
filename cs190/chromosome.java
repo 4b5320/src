@@ -210,7 +210,7 @@ public class chromosome{
 	}
 	
 	private double getWindSpeedDueTo(int i0, int j0, int i, int j) {//Jensen
-		double x = 2000*Math.sqrt(Math.pow(Math.abs(i - i0), 2) + Math.pow(Math.abs(j - j0), 2));
+		double x = 200*Math.sqrt(Math.pow(Math.abs(i - i0), 2) + Math.pow(Math.abs(j - j0), 2));
 		
 		double CT = 0.88; //thrust coefficient
 		double a =  0.5 - 0.5*(Math.sqrt(1-CT)); //axial induction

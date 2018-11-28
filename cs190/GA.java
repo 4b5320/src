@@ -69,7 +69,7 @@ public class GA {
 					best = i;
 				}
 			}
-			System.out.println("Gen " + gen + " " + Math.abs((totalFit/population.length)-population[best].getFitness()));
+			System.out.println("Gen " + gen + " " + population[best].getFitness());
 			
 			//color the gui
 			final int x = best;
