@@ -78,9 +78,9 @@ public class GA {
 					for(int i=0;i<matrix.length;i++) {
 						for(int j=0;j<matrix[i].length;j++) {
 							if(Integer.parseInt(population[x].getPowerAt(i, j)) == 0) {
-								matrix[j][i].setText("");
+								matrix[j][i].setBackground(Color.LIGHT_GRAY);
 							} else {
-								matrix[j][i].setText(population[x].getPowerAt(i, j));
+								matrix[j][i].setBackground(Color.BLACK);
 							}
 						}
 					}
