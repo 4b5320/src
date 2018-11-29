@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 public class GA {
-	private final int maxPop = 500, maxGen = 5000;
+	private final int maxPop = 100, maxGen = 5000;
 	private int gen = 1;
 	private chromosome[] population;
 	private int row, col, N;
