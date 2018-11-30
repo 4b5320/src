@@ -73,7 +73,7 @@ public class chromosome{
 		
 		
 		//Compute the cost
-		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, 0.00147*Math.pow(N, 2)));
+		double cost = N*((2d/3d) + (1d/3d)*Math.pow(Math.E, -0.00174*Math.pow(N, 2)));
 		
 		fitness = cost/totalPower;
 		//System.out.println("Fitness: " + fitness);
@@ -219,7 +219,7 @@ public class chromosome{
 		double beta = 0.5/Math.log(z/z0); //entrainment constant
 		double r0 = 20; // rotor radius
 		
-		return getWindSpeedAt(i0, j0)*(1-(2*a*(r0/(r0+beta*x))));
+		return getWindSpeedAt(i0, j0)*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
 	}
 	
 	public String toString() {

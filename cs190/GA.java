@@ -103,7 +103,7 @@ public class GA {
 			
 			//choose the parents
 			for(int i=0;i<parents.length;i++) {
-				chromosome[] competitors = new chromosome[m];
+				chromosome[] competitors = new chromosome[(int) Math.floorDiv(cont.size(), parents.length)];
 				
 				
 				
