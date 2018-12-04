@@ -417,9 +417,10 @@ public class guitest{
 							}
 						}).start();
 					} else if(readyToPlay && playersReady == serverList.size() && playerRole != null) {
-						subPanel.removeAll();
+						mainPanel.removeAll();
 						frame.repaint();
 						frame.revalidate();
+						setGameUI();
 					}
 				} else if(message.isType(2)) {
 					int value = Integer.parseInt(message.getMessage().toString());
@@ -536,9 +537,10 @@ public class guitest{
 				if(playersReady == outStreamList.size()) {
 					new Thread(new Runnable() {
 						public void run() {
-							subPanel.removeAll();
+							mainPanel.removeAll();
 							frame.repaint();
 							frame.revalidate();
+							setGameUI();
 						}
 					}).start();
 				}
@@ -547,5 +549,9 @@ public class guitest{
 		
 		mainPanel.repaint();
 		mainPanel.revalidate();
+	}
+	
+	private void setGameUI() {
+		
 	}
 }
