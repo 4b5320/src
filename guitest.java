@@ -636,9 +636,9 @@ public class guitest{
 		rolebtn[2] = new JToggleButton(roles[2]);
 		rolebtn[3] = new JToggleButton(roles[3]);
 		for(int i=0;i<rolebtn.length;i++) {
-			rolebtn[i].setFont(new Font("MV Boli", Font.BOLD , 60));
-			rolebtn[i].setBounds(125, i*80+25, 400, 80);
-			
+			rolebtn[i].setFont(new Font("MV Boli", Font.BOLD , 40));
+			rolebtn[i].setBounds(125, i*100+50, 400, 80);
+			rolebtn[i].setBackground(new Color(193, 154, 107));
 			subPanel.add(rolebtn[i]);
 		}
 		
