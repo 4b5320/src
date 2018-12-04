@@ -39,7 +39,7 @@ public class guitest{
 	private JToggleButton[] rolebtn;
 	private Boolean[] roleTaken = {false, false, false, false};
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
-	private String playerName = null;
+	private String playerName = UUID.randomUUID().toString().split("-")[0];
 	private String playerRole = null;
 	private boolean isGameHost = false;
 	private int timeout = 10, timer = 0;
@@ -67,11 +67,6 @@ public class guitest{
 	
 	
 	public static void main(String[] args) {
-		new Thread(new Runnable() {
-			public void run() {
-				new guitest();
-			}
-		}).start();
 		new Thread(new Runnable() {
 			public void run() {
 				new guitest();
@@ -598,8 +593,6 @@ public class guitest{
 						} else {
 							sendMessage(new myMessage(3, "The votes are equal!", playerRole, playerName));
 						}
-						guilty = 0;
-						notguilty = 0;
 					}
 				}else if(message.isType(9) && playerRole.equals("Judge")) {
 					numberOfJuror++;
@@ -730,17 +723,21 @@ public class guitest{
 	}
 	
 	private void setGameUI() {
+		frame.setBounds(frame.getX(), frame.getY(), 580, frame.getHeight());
 		courtArea = new JTextArea();
 		((DefaultCaret) courtArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		JScrollPane scrollPane1 = new JScrollPane();
 		JScrollPane scrollPane2;
+		
+		progressBar.setBounds(0, 780, mainPanel.getWidth(), 20);
+		mainPanel.add(progressBar);
 		
 		if(playerRole == "Juror") {
 			
 			//Setup the courtroom chat box
 			JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
 			lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
-			lblCourtroomsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
+			lblCourtroomsConversation.setFont(new Font("MV Boli", Font.BOLD, 15));
 			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
 			courtArea.setForeground(Color.BLACK);
 			courtArea.setFont(new Font("MV Boli", Font.BOLD, 25));
@@ -760,7 +757,7 @@ public class guitest{
 			((DefaultCaret) juryArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 			scrollPane2.setViewportView(juryArea);
 			JLabel lblJurorsConversation = new JLabel("Jury's Conversation");
-			lblJurorsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
+			lblJurorsConversation.setFont(new Font("MV Boli", Font.BOLD, 15));
 			lblJurorsConversation.setBackground(SystemColor.menu);
 			scrollPane2.setColumnHeaderView(lblJurorsConversation);
 
@@ -792,7 +789,7 @@ public class guitest{
 			lblCourtroomsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
 			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
 			courtArea.setForeground(Color.BLACK);
-			courtArea.setFont(new Font("MV Boli", Font.BOLD, 25));
+			courtArea.setFont(new Font("MV Boli", Font.BOLD, 15));
 			courtArea.setEditable(false);
 			courtArea.setLineWrap(true);
 			courtArea.setWrapStyleWord(true);
@@ -802,7 +799,7 @@ public class guitest{
 
 			//setup the message input field
 			inputField.setForeground(Color.BLACK);
-			inputField.setFont(new Font("MV Boli", Font.BOLD, 25));
+			inputField.setFont(new Font("MV Boli", Font.BOLD, 15));
 			inputField.setBounds(20, 720, 360, 30);
 			mainPanel.add(inputField);
 			
@@ -872,14 +869,17 @@ public class guitest{
 				//Events
 				btnBeginTrial.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						String case1 = "Case: Murder of Kevin McKevin\n"
+								+ "Initial Statement: The trial of the Defendant, Mac Book, is about to begin. Details for his murder case are to be presented by the prosecutor.";
+						
 						btnBeginTrial.setEnabled(false);
 						btnDemandOrder.setEnabled(true);
 						rdbtnNewRadioButton.setEnabled(true);
 						rdbtnDefenseLawyer.setEnabled(true);
 						btnDecide.setEnabled(true);
 						btnCallForPartial.setEnabled(true);
-						courtArea.append("\nYou: Let the trial begin! I allow the prosecutor to talk first.");
-						sendMessage(new myMessage(3, "Let the trial begin! I allow the prosecutor to talk first.", playerRole, playerName));
+						courtArea.append("\nYou: Let the trial begin! I allow the prosecutor to talk first." + "\n" + case1);
+						sendMessage(new myMessage(3, "Let the trial begin! I allow the prosecutor to talk first." + "\n" + case1, playerRole, playerName));
 						sendMessage(new myMessage(4, (Object) "Prosecutor"));
 						rdbtnNewRadioButton.setSelected(true);
 						rdbtnNewRadioButton.setEnabled(false);
@@ -897,6 +897,8 @@ public class guitest{
 				
 				btnCallForPartial.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						guilty = 0;
+						notguilty = 0;
 						courtArea.append("\nYou: Members of the Juror, vote for partial verdict!");
 						sendMessage(new myMessage(3, "Members of the Juror, vote for partial verdict!", playerRole, playerName));
 						sendMessage(new myMessage(5));
@@ -909,6 +911,26 @@ public class guitest{
 					}
 				});
 			} else if (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer")) {
+				//List of evidences and testimonies
+				LinkedList<String> evidences = new LinkedList<String>();
+				LinkedList<String> testimonies = new LinkedList<String>();
+				
+				evidences.add("Autopsy report: Kevin McKevin's body was found in his apartment at 8:00PM by the defendant, Mac Book."
+						+ " The cause of death was a blunt force found behind the head. Death is instant. A cut is also found at the right"
+						+ "arm. Time of death is 7:20PM.");
+				evidences.add("Bloodied crowbar found beside the victim's body. Crowbar is owned by the victim. The blood found was confirmed to be the victim's. "
+						+ "No fingerprints found except the victim's.");
+				evidences.add("Bloodied kitchen knife found inside the apartment. Knife has no figerprints. Blood was also the victim's.");
+				evidences.add("Tampered door knob. The door knob of the victim's apartment had scratches. Possibly tampered with lockpick.");
+				evidences.add("The apartment was in disorder. Evidence of struggle is clear and desicive. Jewelry box found on the ground is missing "
+						+ "a necklace. The necklace is the victim's priced possesion.");
+				
+				testimonies.add("Mac Book: Kevs was my bestfriend. I always visit him in the aprtment around 8:00PM because I know he gets back from work by that "
+						+ "time. When I was there, I saw the door slightly opened. I immediately looked at there then I saw him with blood everywhere. "
+						+ "That is when I called the police.");
+				testimonies.add("Pina Colada: I am Mr. McKevin's landlady. I saw Mr. Book, the locksmith at around 6:45PM asking if Mr. McKevin is home. "
+						+ "And then I heared noises around 7:00PM. I did not bother checking because they are always noisy when they are together.");
+				
 				if(playerRole.equals("Prosecutor")) {
 					btnPresent = new JButton("PRESENT EVIDENCE");
 				}else {
@@ -935,11 +957,21 @@ public class guitest{
 						//can only present one evidence/testimony
 						btnPresent.setEnabled(false);
 						if(playerRole.equals("Prosecutor")) {
-							courtArea.append("\nYou: I would like to present an evidence!");
-							sendMessage(new myMessage(3, "I would like to present an evidence!", playerRole, playerName));
+							if(evidences.isEmpty()) {
+								courtArea.append("\nNO MORE EVIDENCES!");
+							} else {
+								String lol = evidences.remove(new Random().nextInt(evidences.size()));
+								courtArea.append("\nYou: I would like to present an evidence!\n" + lol);
+								sendMessage(new myMessage(3, "I would like to present an evidence!\n" + lol, playerRole, playerName));
+							}
 						}else {
-							courtArea.append("\nYou: I would like to present a testimony!");
-							sendMessage(new myMessage(3, "I would like to present a testimony!", playerRole, playerName));
+							if(testimonies.isEmpty()) {
+								courtArea.append("\nNO MORE TESTIMONIES!");
+							} else {
+								String lol = testimonies.remove(new Random().nextInt(testimonies.size()));
+								courtArea.append("\nYou: I would like to present a testimony!\n" + lol);
+								sendMessage(new myMessage(3, "I would like to present a testimony!\n" + lol, playerRole, playerName));
+							}
 						}
 					}
 				});
