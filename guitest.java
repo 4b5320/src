@@ -582,24 +582,24 @@ public class guitest{
 					
 				}else if(message.isType(7) && playerRole.equals("Judge")) {
 					
-				}else if(message.isType(8)) {
-					courtArea.append("\n" + message.getRoleOfSource() + " " + message.getSource() + ": I vote for "
-							+ (String) message.getMessage() + "!");
+				}else if(message.isType(8) && playerRole.equals("Judge")) {
 					if(((String) message.getMessage()).equals("GUILTY")) {
 						guilty++;
 					}else {
 						notguilty++;
 					}
+					System.out.println("Guilty: " + guilty + " Not Guilty: " + notguilty + " Jury: " + numberOfJuror);
 					
 					if(numberOfJuror == guilty + notguilty) {
 						if(guilty > notguilty) {
-							sendMessage(new myMessage(3, "Majority of the Jury voted for guilty!"));
+							sendMessage(new myMessage(3, "Majority of the Jury voted for guilty!", playerRole, playerName));
 						} else if (guilty < notguilty){
-							sendMessage(new myMessage(3, "Majority of the Jury voted for  not guilty!"));
+							sendMessage(new myMessage(3, "Majority of the Jury voted for  not guilty!", playerRole, playerName));
 						} else {
-							sendMessage(new myMessage(3, "The votes are equal!"));
+							sendMessage(new myMessage(3, "The votes are equal!", playerRole, playerName));
 						}
-						
+						guilty = 0;
+						notguilty = 0;
 					}
 				}else if(message.isType(9) && playerRole.equals("Judge")) {
 					numberOfJuror++;
