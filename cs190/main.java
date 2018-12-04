@@ -6,7 +6,7 @@ public class main{
 	public static void main(String[] arguments) {
 		new Thread(new Runnable() {
 			public void run() {
-				new GA(10, 10, 39).startGA();
+				new GA(10, 10, 36).startGA();
 			}
 		}).start();
 	}

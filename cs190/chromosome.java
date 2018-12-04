@@ -209,7 +209,7 @@ public class chromosome{
 		}
 	}
 	
-	private double getWindSpeedDueTo(int i0, int j0, int i, int j) {//Jensen
+	private double getWindSpeedDueTo(int i0, int j0, int i, int j) {//Modified Jensen
 		double x = 200*Math.sqrt(Math.pow(Math.abs(i - i0), 2) + Math.pow(Math.abs(j - j0), 2));
 		
 		double CT = 0.88; //thrust coefficient

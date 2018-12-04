@@ -32,14 +32,27 @@ public class guitest{
 	private JButton btnFind = new JButton("FIND GAME");
 	private JButton btnCancel = new JButton("CANCEL");
 	private JTextField textField = new JTextField();
+	private boolean readyToPlay = false;
+	private int playersReady = 0;
+	private JToggleButton[] rolebtn;
+	private Boolean[] roleTaken = {false, false, false, false};
+	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
+	private String playerName = null;
+	private String playerRole = null;
 	
 	//Network Variables
+	private ServerSocket serverSocket;
 	private String localIP = null;
 	private int localPort = -1;
 	private LinkedList<ObjectOutputStream> outStreamList = new LinkedList<ObjectOutputStream>();
 	private LinkedList<Object[]> serverList = new LinkedList<Object[]>();
 
 	public static void main(String[] args) {
+		new Thread(new Runnable() {
+			public void run() {
+				new guitest();
+			}
+		}).start();
 		new Thread(new Runnable() {
 			public void run() {
 				new guitest();
@@ -207,6 +220,7 @@ public class guitest{
 					}
 				}while(localIP == null || localPort == -1);
 				btnFind.setEnabled(false);
+				btnFind.setFont(new Font("MV Boli", Font.PLAIN, 60));
 				textField.setEnabled(false);
 				new Thread(new Runnable() {
 					public void run() {
@@ -221,22 +235,41 @@ public class guitest{
 						String subnet = Byte.toUnsignedInt(localIP[0]) + "." + Byte.toUnsignedInt(localIP[1]) + "." + Byte.toUnsignedInt(localIP[2]);
 						
 						status.setText("Finding game host...");
-						String clientIP = subnet + "." + textField.getText().substring(4, textField.getText().length());
-						int clientPort = Integer.parseInt(textField.getText().substring(0, 4));
 						try {
-							connectToServer(clientIP, clientPort);
-						} catch (UnknownHostException e) {
-							status.setText("Game not found!");
+							String clientIP = subnet + "." + textField.getText().substring(4, textField.getText().length());
+							int clientPort = Integer.parseInt(textField.getText().substring(0, 4));
+							try {
+								connectToServer(clientIP, clientPort, "Player" + new Random().nextInt(100));
+								createLabel("Game ID: " + textField.getText() + Byte.toUnsignedInt(localIP[3]), new Rectangle(50, 50, 450, 50), 40, subPanel);
+								subPanel.remove(textField);
+								status.setText("Waiting for other players...");
+								btnCancel.setEnabled(false);
+								
+								mainPanel.repaint();
+								mainPanel.revalidate();
+							} catch (Exception e) {
+								status.setText("Game not found!");
+								btnFind.setEnabled(true);
+								textField.setEnabled(true);
+								textField.setText("");
+								textField.requestFocus();
+							}
+						} catch(StringIndexOutOfBoundsException | NumberFormatException e) {
+							status.setText("Invalid Game ID!");
 							btnFind.setEnabled(true);
 							textField.setEnabled(true);
+							textField.setText("");
+							textField.requestFocus();
 						}
-						
 					}
 				}).start();
 			}
 		});
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				try {
+					serverSocket.close();
+				} catch (NullPointerException | IOException e1) { };
 				mainPanel.remove(btnReady);
 				mainPanel.remove(btnFind);
 				mainPanel.remove(btnCancel);
@@ -249,6 +282,22 @@ public class guitest{
 				status.setText("");
 				mainPanel.repaint();
 				mainPanel.revalidate();
+			}
+		});
+		btnReady.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnReady.setEnabled(false);
+				readyToPlay = true;
+				btnStart.setEnabled(false);
+				sendMessage(new myMessage(1, true));
+				System.out.println("\nPlayers ready: " + playersReady + " outstreamlist: " + outStreamList.size());
+				if(playersReady == outStreamList.size()) {
+					new Thread(new Runnable() {
+						public void run() {
+							chooseRolesUI();
+						}
+					}).start();
+				}
 			}
 		});
 		textField.addKeyListener(new KeyAdapter() {
@@ -268,7 +317,7 @@ public class guitest{
 		try {
 			localPort = new Random().nextInt(8999)+1000;
 			status.setText("Starting server...");
-			ServerSocket serverSocket = new ServerSocket(localPort);
+			serverSocket = new ServerSocket(localPort);
 			status.setText("Waiting for players...");
 			
 			//Wait for handshakes
@@ -277,7 +326,6 @@ public class guitest{
 					while(true){
 						try {
 							Socket socket = serverSocket.accept();
-							System.out.println("ClientConnected");
 							outStreamList.add(new ObjectOutputStream(socket.getOutputStream()));
 							//Wait for the client to send his IP and server port, thread this
 							new Thread(new Runnable() {
@@ -300,8 +348,8 @@ public class guitest{
 													}
 													if(isServerUnique && (!localIP.equals(clientIP) || localPort != clientPort)) {
 														try {
-															connectToServer(clientIP, clientPort);
-														} catch (UnknownHostException e) { }
+															connectToServer(clientIP, clientPort, "Player" + new Random().nextInt(100));
+														} catch (Exception e) { }
 													}
 												}
 											}).start();
@@ -320,30 +368,169 @@ public class guitest{
 		}
 	}
 	
-	private void connectToServer(String clientIP, int clientPort) throws UnknownHostException{
+	private void connectToServer(String clientIP, int clientPort, String name) throws Exception {
 		try {
 			if(localIP.equals(clientIP) && localPort == clientPort) {
 				return;
 			}
 		} catch (NullPointerException e1) { }
-		try {
-			System.out.println("ClientIP: " + clientIP + " clientPort: " + clientPort);
-			//Connect to my client's server
-			Socket server = new Socket(clientIP, clientPort);
-			serverList.add(new Object[] {clientIP, clientPort});
-			System.out.println(localPort + " connects to "
-					+ clientIP + " " + clientPort );
-			//Send my IP and port and colleagues
-			LinkedList<Object[]> temp = new LinkedList<Object[]>();
-			for(int i=0;i<serverList.size();i++) {
-				temp.add(serverList.get(i));
+		System.out.println("ClientIP: " + clientIP + " clientPort: " + clientPort);
+		//Connect to my client's server
+		Socket server = new Socket(clientIP, clientPort);
+		serverList.add(new Object[] {clientIP, clientPort});
+		
+		//Check if there is enough number of players, that is atleast 4, 3 servers
+		if(serverList.size() == 1) {
+			btnReady.setEnabled(true);
+		}
+		
+		//Display the connected server
+		createLabel(name, new Rectangle(50, serverList.size()*60+50, 450, 50), 40, subPanel);
+		frame.repaint();
+		frame.revalidate();
+		
+		System.out.println(localPort + " connects to "
+				+ clientIP + " " + clientPort );
+		//Send my IP and port and colleagues
+		LinkedList<Object[]> temp = new LinkedList<Object[]>();
+		for(int i=0;i<serverList.size();i++) {
+			temp.add(serverList.get(i));
+		}
+		temp.add(new Object[] {localIP, localPort});
+		new ObjectOutputStream(server.getOutputStream()).writeObject(new myMessage(0, temp));
+		
+		//Set up the input stream and Receive messages from this server
+		ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+		//receiveMessage(new ObjectInputStream(server.getInputStream()));
+		while(true) {
+			try {
+				myMessage message = (myMessage) in.readObject();
+				if(message.isType(1) && message.getMessage().toString().equals("true")) {
+					System.out.println("Message received.");
+					playersReady++;
+					if(readyToPlay && playersReady == serverList.size()) {
+						new Thread(new Runnable() {
+							public void run() {
+								chooseRolesUI();
+							}
+						}).start();
+					}
+				} else if(message.isType(2)) {
+					int value = Integer.parseInt(message.getMessage().toString());
+					if (Math.abs(value) != 4) {
+						if (value > 0) {
+							rolebtn[value - 1].setSelected(true);
+							rolebtn[value - 1].setEnabled(false);
+							roleTaken[value - 1] = true;
+						} else {
+							value = value * -1;
+							rolebtn[value - 1].setSelected(false);
+							rolebtn[value - 1].setEnabled(true);
+							roleTaken[value - 1] = false;
+						} 
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SocketException e) {
+				break;
 			}
-			temp.add(new Object[] {localIP, localPort});
-			new ObjectOutputStream(server.getOutputStream()).writeObject(new myMessage(0, temp));
+		}
+	}
+	
+	private void sendMessage(myMessage message) {
+		for(ObjectOutputStream outStream : outStreamList) {
+			try {
+				outStream.writeObject(message);
+			} catch (IOException e) {
 			
-			//Set up the input stream and Receive messages from this server
-			//receiveMessage(new ObjectInputStream(server.getInputStream()));
+			}
+		}
+	}
+	
+	private void chooseRolesUI() {
+		int iop = 5;
+		while(iop > 0) {
+			status.setText("Game starts in " + iop + "...");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) { }
+			iop--;
+		}
+		readyToPlay = false;
+		playersReady = 0;
+		
+		subPanel.removeAll();
+		frame.repaint();
+		frame.revalidate();
+		
+		rolebtn = new JToggleButton[4];
+		JLabel[] labels = new JLabel[4];
+		
+		rolebtn[0] = new JToggleButton(roles[0]);
+		rolebtn[1] = new JToggleButton(roles[1]);
+		rolebtn[2] = new JToggleButton(roles[2]);
+		rolebtn[3] = new JToggleButton(roles[3]);
+		for(int i=0;i<rolebtn.length;i++) {
+			rolebtn[i].setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
+			rolebtn[i].setBounds(10, i*60+50, 420, 30);
 			
-		} catch (SocketException | EOFException e) { } catch (IOException e) { }
+			subPanel.add(rolebtn[i]);
+		}
+		
+		for(int i=0;i<labels.length;i++) {
+			labels[i] = new JLabel();
+			labels[i].setFont(new Font("Courier New", Font.BOLD | Font.ITALIC, 12));
+			labels[i].setHorizontalAlignment(SwingConstants.CENTER);
+			labels[i].setBounds(10, i*60+80, 420, 14);
+			subPanel.add(labels[i]);
+		}
+		
+		JLabel label = new JLabel("CHOOSE YOUR ROLE");
+		label.setHorizontalAlignment(SwingConstants.CENTER);
+		label.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
+		label.setBounds(10, 10, 420, 30);
+		subPanel.add(label);
+		
+		JButton btnLock = new JButton("LOCK-IN");
+		btnLock.setBackground(new Color(0, 128, 0));
+		btnLock.setForeground(Color.BLACK);
+		btnLock.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
+		btnLock.setBounds(86, 285, 267, 30);
+		btnLock.setEnabled(true);
+		subPanel.add(btnLock);
+		
+		for(int i=0;i<rolebtn.length;i++) {
+			final int k = i;
+			rolebtn[i].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					playerRole = roles[k];
+					if(rolebtn[k].isSelected()) {
+						sendMessage(new myMessage(2,k+1));
+						for (int j = 0; j < rolebtn.length; j++) {
+							if (k != j && !roleTaken[j]) {
+								rolebtn[j].setSelected(!rolebtn[k].isSelected());
+								if(k!=3 || (k==3 && rolebtn[k].isSelected())) {
+									sendMessage(new myMessage(2,(j+1)*-1));
+								}
+								
+							}
+						}
+					} else {
+						sendMessage(new myMessage(2,(k+1)*-1));
+					}
+				}
+			});
+		}
+		
+		btnLock.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendMessage(new myMessage(9));
+				//setupchatUI();
+			}
+		});
+		
+		mainPanel.repaint();
+		mainPanel.revalidate();
 	}
 }
