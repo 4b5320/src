@@ -717,10 +717,10 @@ public class guitest{
 			//Setup the courtroom chat box
 			JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
 			lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
-			lblCourtroomsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			lblCourtroomsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
 			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
 			courtArea.setForeground(Color.BLACK);
-			courtArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			courtArea.setFont(new Font("MV Boli", Font.BOLD, 25));
 			courtArea.setEditable(false);
 			courtArea.setLineWrap(true);
 			courtArea.setWrapStyleWord(true);
@@ -730,20 +730,20 @@ public class guitest{
 			scrollPane2 = new JScrollPane();
 			juryArea = new JTextArea();
 			juryArea.setForeground(Color.BLACK);
-			juryArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			juryArea.setFont(new Font("MV Boli", Font.BOLD, 25));
 			juryArea.setEditable(false);
 			juryArea.setLineWrap(true);
 			juryArea.setWrapStyleWord(true);
 			((DefaultCaret) juryArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 			scrollPane2.setViewportView(juryArea);
 			JLabel lblJurorsConversation = new JLabel("Jury's Conversation");
-			lblJurorsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			lblJurorsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
 			lblJurorsConversation.setBackground(SystemColor.menu);
 			scrollPane2.setColumnHeaderView(lblJurorsConversation);
 
 			//setup the chat boxes
 			JSplitPane chatSplitter = new JSplitPane();
-			chatSplitter.setBounds(10,10, 510, 350);
+			chatSplitter.setBounds(20, 20, 650, 700);
 			chatSplitter.setLeftComponent(scrollPane1);
 			chatSplitter.setRightComponent(scrollPane2);
 			chatSplitter.setResizeWeight(0.5);
@@ -752,42 +752,42 @@ public class guitest{
 			
 			//setup the message input field
 			inputField.setForeground(Color.BLACK);
-			inputField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-			inputField.setBounds(10, 370, 435, 20);
+			inputField.setFont(new Font("MV Boli", Font.BOLD, 25));
+			inputField.setBounds(20, 720, 575, 30);
 			mainPanel.add(inputField);
 			
 			//setup the send button
 			btnSend.setForeground(Color.BLACK);
 			btnSend.setBackground(UIManager.getColor("Button.light"));
-			btnSend.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-			btnSend.setBounds(445, 370, 75, 20);
+			btnSend.setFont(new Font("MV Boli", Font.BOLD, 15));
+			btnSend.setBounds(585, 720, 75, 30);
 			mainPanel.add(btnSend);
 		} else {
 			//Setup the courtroom chat box
 			JLabel lblCourtroomsConversation = new JLabel("Courtroom's Conversation");
 			lblCourtroomsConversation.setBackground(new Color(240, 240, 240));
-			lblCourtroomsConversation.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			lblCourtroomsConversation.setFont(new Font("MV Boli", Font.BOLD, 25));
 			scrollPane1.setColumnHeaderView(lblCourtroomsConversation);
 			courtArea.setForeground(Color.BLACK);
-			courtArea.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+			courtArea.setFont(new Font("MV Boli", Font.BOLD, 25));
 			courtArea.setEditable(false);
 			courtArea.setLineWrap(true);
 			courtArea.setWrapStyleWord(true);
 			scrollPane1.setViewportView(courtArea);
-			scrollPane1.setBounds(10, 10, 340, 350);
+			scrollPane1.setBounds(20, 20, 360, 700);
 			mainPanel.add(scrollPane1);
 
 			//setup the message input field
 			inputField.setForeground(Color.BLACK);
-			inputField.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-			inputField.setBounds(10, 370, 430, 20);
+			inputField.setFont(new Font("MV Boli", Font.BOLD, 25));
+			inputField.setBounds(20, 720, 360, 30);
 			mainPanel.add(inputField);
 			
 			//setup the send button
 			btnSend.setForeground(Color.BLACK);
 			btnSend.setBackground(UIManager.getColor("Button.light"));
-			btnSend.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-			btnSend.setBounds(450, 370, 75, 20);
+			btnSend.setFont(new Font("MV Boli", Font.BOLD, 15));
+			btnSend.setBounds(370, 720, 180, 30);
 			mainPanel.add(btnSend);
 			
 			if(playerRole.equals("Judge")) {
@@ -796,52 +796,52 @@ public class guitest{
 				
 				JButton btnBeginTrial = new JButton("BEGIN TRIAL");
 				btnBeginTrial.setForeground(Color.BLACK);
-				btnBeginTrial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnBeginTrial.setFont(new Font("MV Boli", Font.BOLD, 15));
 				btnBeginTrial.setBackground(SystemColor.controlHighlight);
-				btnBeginTrial.setBounds(360, 10, 165, 30);
+				btnBeginTrial.setBounds(380, 20, 180, 30);
 				mainPanel.add(btnBeginTrial);
 				
 				JButton btnDemandOrder = new JButton("DEMAND ORDER");
 				btnDemandOrder.setForeground(Color.BLACK);
-				btnDemandOrder.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnDemandOrder.setFont(new Font("MV Boli", Font.BOLD, 15));
 				btnDemandOrder.setBackground(SystemColor.controlHighlight);
-				btnDemandOrder.setBounds(360, 50, 165, 30);
+				btnDemandOrder.setBounds(380, 60, 180, 30);
 				btnDemandOrder.setEnabled(false);
 				mainPanel.add(btnDemandOrder);
 				
 				JLabel lblWhoWillTalk = new JLabel("Who is allowed to speak?");
 				lblWhoWillTalk.setForeground(Color.BLACK);
-				lblWhoWillTalk.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				lblWhoWillTalk.setFont(new Font("MV Boli", Font.BOLD, 15));
 				lblWhoWillTalk.setBackground(SystemColor.menu);
-				lblWhoWillTalk.setBounds(360, 91, 164, 20);
+				lblWhoWillTalk.setBounds(380, 101, 179, 20);
 				mainPanel.add(lblWhoWillTalk);
 				
 				rdbtnNewRadioButton.setForeground(Color.BLACK);
-				rdbtnNewRadioButton.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-				rdbtnNewRadioButton.setBounds(370, 115, 155, 20);
+				rdbtnNewRadioButton.setFont(new Font("MV Boli", Font.BOLD, 15));
+				rdbtnNewRadioButton.setBounds(390, 125, 170, 20);
 				rdbtnNewRadioButton.setEnabled(false);
 				mainPanel.add(rdbtnNewRadioButton);
 				
 				rdbtnDefenseLawyer.setForeground(Color.BLACK);
-				rdbtnDefenseLawyer.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
-				rdbtnDefenseLawyer.setBounds(370, 140, 155, 20);
+				rdbtnDefenseLawyer.setFont(new Font("MV Boli", Font.BOLD, 15));
+				rdbtnDefenseLawyer.setBounds(390, 150, 170, 20);
 				rdbtnDefenseLawyer.setEnabled(false);
 				mainPanel.add(rdbtnDefenseLawyer);
 				
 				JButton btnDecide = new JButton("DECIDE");
 				btnDecide.setForeground(Color.BLACK);
-				btnDecide.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 15));
+				btnDecide.setFont(new Font("MV Boli", Font.BOLD, 15));
 				btnDecide.setBackground(SystemColor.controlHighlight);
-				btnDecide.setBounds(360, 220, 165, 30);
+				btnDecide.setBounds(380, 230, 180, 30);
 
 				btnDecide.setEnabled(false);
 				mainPanel.add(btnDecide);
 				
 				JButton btnCallForPartial = new JButton("PARTIAL VERDICT");
 				btnCallForPartial.setForeground(Color.BLACK);
-				btnCallForPartial.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnCallForPartial.setFont(new Font("MV Boli", Font.BOLD, 14));
 				btnCallForPartial.setBackground(SystemColor.controlHighlight);
-				btnCallForPartial.setBounds(360, 180, 165, 30);
+				btnCallForPartial.setBounds(380, 190, 180, 30);
 				btnCallForPartial.setEnabled(false);
 				mainPanel.add(btnCallForPartial);
 
@@ -892,17 +892,17 @@ public class guitest{
 					btnPresent = new JButton("PRESENT TESTIMONY");
 				}
 				btnPresent.setForeground(Color.BLACK);
-				btnPresent.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 12));
+				btnPresent.setFont(new Font("MV Boli", Font.BOLD, 12));
 				btnPresent.setBackground(SystemColor.controlHighlight);
-				btnPresent.setBounds(360, 10, 165, 30);
+				btnPresent.setBounds(380, 20, 180, 30);
 				btnPresent.setEnabled(false);
 				mainPanel.add(btnPresent);
 				
 				btnObject = new JButton("OBJECT!");
 				btnObject.setForeground(Color.BLACK);
-				btnObject.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 14));
+				btnObject.setFont(new Font("MV Boli", Font.BOLD, 14));
 				btnObject.setBackground(SystemColor.controlHighlight);
-				btnObject.setBounds(360, 50, 165, 30);
+				btnObject.setBounds(380, 60, 180, 30);
 				btnObject.setEnabled(false);
 				mainPanel.add(btnObject);
 				
