@@ -39,6 +39,7 @@ public class guitest{
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
 	private String playerName = null;
 	private String playerRole = null;
+	private boolean isGameHost = false;
 	
 	//Network Variables
 	private ServerSocket serverSocket;
@@ -144,6 +145,7 @@ public class guitest{
 		});
 		btnHost.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				isGameHost = true;
 				configureButton(btnReady, 700, 250, mainPanel);
 				configureButton(btnCancel, 700, 330, mainPanel);
 				btnReady.setEnabled(false);
@@ -515,13 +517,13 @@ public class guitest{
 			});
 		}
 		
-		JButton btnLock = new JButton("LOCK-IN");
-		btnLock.setBackground(new Color(0, 128, 0));
-		btnLock.setForeground(Color.BLACK);
-		btnLock.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
-		btnLock.setBounds(86, 285, 267, 30);
-		btnLock.setEnabled(true);
-		subPanel.add(btnLock);
+
+		JButton btnLock = new JButton("Lock-in");
+		if(isGameHost) {
+			configureButton(btnLock, 700, 410, mainPanel);
+		} else {
+			configureButton(btnLock, 700, 490, mainPanel);
+		}
 		
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
