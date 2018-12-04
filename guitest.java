@@ -77,6 +77,16 @@ public class guitest{
 				new guitest();
 			}
 		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				new guitest();
+			}
+		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				new guitest();
+			}
+		}).start();
 	}
 
 	public guitest() {
@@ -453,6 +463,12 @@ public class guitest{
 							rolebtn[value - 1].setEnabled(true);
 							roleTaken[value - 1] = false;
 						} 
+					} else {
+						if(value == 4) {
+							numberOfJuror++;
+						} else {
+							numberOfJuror--;
+						}
 					}
 				} else if(message.isType(3)) {
 					System.out.println("Received role: " + message.getRoleOfSource());
@@ -576,7 +592,14 @@ public class guitest{
 					}
 					
 					if(numberOfJuror == guilty + notguilty) {
-						sendMessage(new myMessage(3, guilty + " out of " + numberOfJuror + " voted GUILTY!", playerRole, playerName));
+						if(guilty > notguilty) {
+							sendMessage(new myMessage(3, "Majority of the Jury voted for guilty!"));
+						} else if (guilty < notguilty){
+							sendMessage(new myMessage(3, "Majority of the Jury voted for  not guilty!"));
+						} else {
+							sendMessage(new myMessage(3, "The votes are equal!"));
+						}
+						
 					}
 				}else if(message.isType(9) && playerRole.equals("Judge")) {
 					numberOfJuror++;
