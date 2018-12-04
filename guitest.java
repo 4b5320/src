@@ -39,6 +39,7 @@ public class guitest{
 	private String roles[] = {"Judge","Defense Lawyer","Prosecutor","Juror"};
 	private String playerName = null;
 	private String playerRole = null;
+	private boolean isGameHost = false;
 	
 	//Network Variables
 	private ServerSocket serverSocket;
@@ -144,6 +145,7 @@ public class guitest{
 		});
 		btnHost.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				isGameHost = true;
 				configureButton(btnReady, 700, 250, mainPanel);
 				configureButton(btnCancel, 700, 330, mainPanel);
 				btnReady.setEnabled(false);
@@ -491,12 +493,14 @@ public class guitest{
 			labels[i].setBounds(10, i*60+80, 420, 14);
 			subPanel.add(labels[i]);
 		}
+		JButton btnLock = new JButton("LOCK IN");
 		
 		for(int i=0;i<rolebtn.length;i++) {
 			final int k = i;
 			rolebtn[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					playerRole = roles[k];
+					btnLock.setEnabled(true);
 					if(rolebtn[k].isSelected()) {
 						sendMessage(new myMessage(2,k+1));
 						for (int j = 0; j < rolebtn.length; j++) {
@@ -510,21 +514,22 @@ public class guitest{
 						}
 					} else {
 						sendMessage(new myMessage(2,(k+1)*-1));
+						btnLock.setEnabled(false);
 					}
 				}
 			});
 		}
 		
-		JButton btnLock = new JButton("LOCK-IN");
-		btnLock.setBackground(new Color(0, 128, 0));
-		btnLock.setForeground(Color.BLACK);
-		btnLock.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
-		btnLock.setBounds(86, 285, 267, 30);
-		btnLock.setEnabled(true);
-		subPanel.add(btnLock);
-		
+
+		if(isGameHost) {
+			configureButton(btnLock, 700, 410, mainPanel);
+		} else {
+			configureButton(btnLock, 700, 490, mainPanel);
+		}
+		btnLock.setEnabled(false);
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				btnLock.setEnabled(false);
 				sendMessage(new myMessage(1, true));
 				readyToPlay = true;
 				if(playersReady == outStreamList.size()) {
