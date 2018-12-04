@@ -530,6 +530,7 @@ public class guitest{
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnLock.setEnabled(false);
+				btnLock.setFont(new Font("MV Boli", Font.PLAIN, 60));
 				sendMessage(new myMessage(1, true));
 				readyToPlay = true;
 				if(playersReady == outStreamList.size()) {
