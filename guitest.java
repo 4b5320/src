@@ -408,12 +408,16 @@ public class guitest{
 				if(message.isType(1) && message.getMessage().toString().equals("true")) {
 					System.out.println("Message received.");
 					playersReady++;
-					if(readyToPlay && playersReady == serverList.size()) {
+					if(readyToPlay && playersReady == serverList.size() && playerRole==null) {
 						new Thread(new Runnable() {
 							public void run() {
 								chooseRolesUI();
 							}
 						}).start();
+					} else if(readyToPlay && playersReady == serverList.size() && playerRole != null) {
+						subPanel.removeAll();
+						frame.repaint();
+						frame.revalidate();
 					}
 				} else if(message.isType(2)) {
 					int value = Integer.parseInt(message.getMessage().toString());
@@ -457,6 +461,8 @@ public class guitest{
 			} catch (InterruptedException e1) { }
 			iop--;
 		}
+		status.setText("Choose your role");
+		
 		readyToPlay = false;
 		playersReady = 0;
 		
@@ -486,20 +492,6 @@ public class guitest{
 			subPanel.add(labels[i]);
 		}
 		
-		JLabel label = new JLabel("CHOOSE YOUR ROLE");
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		label.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
-		label.setBounds(10, 10, 420, 30);
-		subPanel.add(label);
-		
-		JButton btnLock = new JButton("LOCK-IN");
-		btnLock.setBackground(new Color(0, 128, 0));
-		btnLock.setForeground(Color.BLACK);
-		btnLock.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
-		btnLock.setBounds(86, 285, 267, 30);
-		btnLock.setEnabled(true);
-		subPanel.add(btnLock);
-		
 		for(int i=0;i<rolebtn.length;i++) {
 			final int k = i;
 			rolebtn[i].addActionListener(new ActionListener() {
@@ -523,10 +515,27 @@ public class guitest{
 			});
 		}
 		
+		JButton btnLock = new JButton("LOCK-IN");
+		btnLock.setBackground(new Color(0, 128, 0));
+		btnLock.setForeground(Color.BLACK);
+		btnLock.setFont(new Font("Times New Roman", Font.BOLD | Font.ITALIC, 20));
+		btnLock.setBounds(86, 285, 267, 30);
+		btnLock.setEnabled(true);
+		subPanel.add(btnLock);
+		
 		btnLock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sendMessage(new myMessage(9));
-				//setupchatUI();
+				sendMessage(new myMessage(1, true));
+				readyToPlay = true;
+				if(playersReady == outStreamList.size()) {
+					new Thread(new Runnable() {
+						public void run() {
+							subPanel.removeAll();
+							frame.repaint();
+							frame.revalidate();
+						}
+					}).start();
+				}
 			}
 		});
 		
