@@ -38,6 +38,57 @@ public class chromosome{
 		computeFitness();
 	}
 	
+	public chromosome(chromosome c) {
+		this.u = c.getWindInitialWindSpeed();
+		this.N = c.getNumberOfTurbines();
+		this.row = c.getDimension()[0];
+		this.col = c.getDimension()[1];
+		genes = new gene[row][col];
+		
+		for(int i=0;i<row;i++) {
+			for(int j=0;j<col;j++) {
+				genes[i][j] = new gene(row, col, i, j);
+				genes[i][j].setTurbinePresence(c.isTurbinePresentA(i, j));
+			}
+		}
+		
+		computeFitness();
+	}
+	
+	public chromosome(gene[][] genes, double u) {
+		this.u = u;
+		this.row = genes.length;
+		this.col = genes[0].length;
+		
+		int N = 0;
+		for(int i=0;i<row;i++) {
+			for(int j=0;j<col;j++) {
+				if(genes[i][j].isTurbinePresent()) {
+					N++;
+				}
+			}
+		}
+		this.N= N;
+		
+		this.genes = new gene[row][col];
+		for(int i=0;i<row;i++) {
+			for(int j=0;j<col;j++) {
+				this.genes[i][j] = new gene(row, col, i, j);
+				this.genes[i][j].setTurbinePresence(genes[i][j].isTurbinePresent());
+			}
+		}
+		
+		computeFitness();
+	}
+	
+	protected double getWindInitialWindSpeed() {
+		return u;
+	}
+	
+	protected int getNumberOfTurbines() {
+		return N;
+	}
+	
 	protected void computeFitness() {
 		double totalPower = 0;
 		theta = 0; //reset the theta to 0
@@ -116,7 +167,19 @@ public class chromosome{
 		genes[i][j].setTurbinePresence(val);
 	}
 	
-	protected boolean isTurbinePresentA(int i, int j) {
+	protected int[] getDimension() {
+		return new int[] {row, col};
+	}
+	
+	protected chromosome editChromosome(int i0, int j0, int i, int j) {
+		chromosome c = new chromosome(this);
+		c.setGeneAt(i0, j0, false);
+		c.setGeneAt(i, j, true);
+		
+		return c;
+	}
+	
+	protected boolean isTurbinePresentA(int i, int j) throws ArrayIndexOutOfBoundsException {
 		return genes[i][j].isTurbinePresent();
 	}
 	

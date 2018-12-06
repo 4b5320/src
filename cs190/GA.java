@@ -11,13 +11,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 public class GA {
-	private final int maxPop = 100, maxGen = 5000;
+	private final int maxPop = 10, maxGen = 500;
 	private int gen = 1;
 	private chromosome[] population;
 	private int row, col, N;
 	private double crossRate = 0.7, mutationRate = 0.02;
-	private int m = 5; //tournament size
 	private Random rand = new Random();
+	private boolean isConverged = false;
+	private LinkedList<chromosome> distinct;
 	
 	JFrame frame = new JFrame();
 	private JLabel[][] matrix;
@@ -49,6 +50,10 @@ public class GA {
 		frame.repaint();
 		frame.revalidate();
 	}
+	
+	protected LinkedList<chromosome> getDistinctIndividiuals() {
+		return distinct;
+	}
 
 	protected void startGA() {
 		population = new chromosome[maxPop];
@@ -58,7 +63,7 @@ public class GA {
 			population[i] = new chromosome(row, col, N, 12);
 		}
 		
-		while(gen < maxGen) {
+		while(gen < maxGen && !isConverged) {
 			//Compute fitness
 			int best = 0;
 			double totalFit = 0;
@@ -69,7 +74,42 @@ public class GA {
 					best = i;
 				}
 			}
-			System.out.println("Gen " + gen + " " + population[best].getFitness());
+			
+			//Save distinct chromosomes
+			chromosome[] fittest = population;
+			distinct = new LinkedList<chromosome>();
+			
+			for(chromosome c1 : fittest) {
+				boolean isDistinct = true;
+				for(chromosome c2 : distinct) {
+					boolean sameGenes = true;
+					for(int i=0;i<row;i++) {
+						for(int j=0;j<col;j++) {
+							if(c1.isTurbinePresentA(i, j) != c2.isTurbinePresentA(i, j)) {
+								sameGenes = false;
+								break;
+							}
+						}
+						if(!sameGenes) {
+							break;
+						}
+					}
+					
+					if(sameGenes) {
+						isDistinct = false;
+						break;
+					}
+				}
+				
+				if(isDistinct) {
+					distinct.add(c1);
+				}
+			}
+			
+			System.out.println(gen + "," + population[best].getFitness() + "," + ((double) totalFit/population.length) + "," + distinct.size());
+			
+			//Check convergence
+			isConverged = (distinct.size() == 1);
 			
 			//color the gui
 			final int x = best;
