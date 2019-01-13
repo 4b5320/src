@@ -239,7 +239,7 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(mutationRate);
+				newPop[i].mutate(mutationRate, i);
 				newPop[i].repair();
 			}
 			

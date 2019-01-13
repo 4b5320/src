@@ -262,8 +262,10 @@ public class chromosome{
 		return genes[i][j].isTurbinePresent();
 	}
 	
-	protected void mutate(double rate) {
+	protected void mutate(double rate, int lbl) {
 		if(rand.nextDouble() < rate) {
+			System.out.println(lbl + "th chromosome mutated from\n" + this.toString() + "\nto");
+			
 			//Find a random 1
 			int i0, j0;
 			do {
@@ -286,6 +288,8 @@ public class chromosome{
 				}
 			} while(genes[i0][j0].isTurbinePresent());
 			genes[i0][j0].setTurbinePresence(true);
+			
+			System.out.println(this.toString());
 		}
 	}
 	
