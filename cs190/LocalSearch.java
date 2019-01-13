@@ -11,7 +11,7 @@ public class LocalSearch {
 	boolean chromosomeChecked = false;*/
 	
 	public LocalSearch() {
-		
+		//hahahahahaha
 	}
 	
 	protected void startLocalSearchOn(LinkedList<chromosome> initialSol) {
