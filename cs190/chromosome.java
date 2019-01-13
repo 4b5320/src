@@ -293,7 +293,8 @@ public class chromosome{
 		}
 	}
 	
-	protected void repair() {
+	protected void repair(int lbl) {
+		
 		//Count the number of turbines
 		int turbineCount = 0;
 		for(gene[] g1 : genes) {
@@ -304,35 +305,40 @@ public class chromosome{
 			}
 		}
 		
-		if(turbineCount > N) {
-			while(turbineCount > N) {
-				int i0, j0;
-				do {
-					i0 = rand.nextInt(row);
-					if (isIrregular) {
-						j0 = rand.nextInt(columns[i0]);
-					} else {
-						j0 = rand.nextInt(col);
-					}
-				} while(!genes[i0][j0].isTurbinePresent());
-				genes[i0][j0].setTurbinePresence(false);
-				turbineCount--;
+		if(turbineCount != N) {
+			System.out.println(lbl + "th chromosome repaired from\n" + this.toString());
+			if(turbineCount > N) {
+				while(turbineCount > N) {
+					int i0, j0;
+					do {
+						i0 = rand.nextInt(row);
+						if (isIrregular) {
+							j0 = rand.nextInt(columns[i0]);
+						} else {
+							j0 = rand.nextInt(col);
+						}
+					} while(!genes[i0][j0].isTurbinePresent());
+					genes[i0][j0].setTurbinePresence(false);
+					turbineCount--;
+				}
+			} else if(turbineCount < N) {
+				while(turbineCount < N) {
+					int i0, j0;
+					do {
+						i0 = rand.nextInt(row);
+						if (isIrregular) {
+							j0 = rand.nextInt(columns[i0]);
+						} else {
+							j0 = rand.nextInt(col);
+						}
+					} while(genes[i0][j0].isTurbinePresent());
+					genes[i0][j0].setTurbinePresence(true);
+					turbineCount++;
+				}
 			}
-		} else if(turbineCount < N) {
-			while(turbineCount < N) {
-				int i0, j0;
-				do {
-					i0 = rand.nextInt(row);
-					if (isIrregular) {
-						j0 = rand.nextInt(columns[i0]);
-					} else {
-						j0 = rand.nextInt(col);
-					}
-				} while(genes[i0][j0].isTurbinePresent());
-				genes[i0][j0].setTurbinePresence(true);
-				turbineCount++;
-			}
+			System.out.println("to\n" + this.toString());
 		}
+		
 	}
 	
 	private double[] getWindSpeedAt(int i, int j) {

@@ -240,7 +240,7 @@ public class GA {
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
 				newPop[i].mutate(mutationRate, i);
-				newPop[i].repair();
+				newPop[i].repair(i);
 			}
 			
 			//move to the next generation
