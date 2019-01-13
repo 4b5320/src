@@ -198,7 +198,7 @@ public class GA {
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[(int) Math.floorDiv(cont.size(), parents.length)];
 				
-				
+				System.out.println("Generation "+gen+" : Tournament "+(i+1));
 				
 				//choose competitors of the tournament
 				for(int j=0;j<competitors.length;j++) {
@@ -212,16 +212,20 @@ public class GA {
 				//tournament!
 				chromosome winner = competitors[0];
 				for(int j=1;j<competitors.length;j++) {
+					System.out.print(competitors[j]+" : ");
 					if(Double.compare(competitors[j].getFitness(), winner.getFitness()) < 0) {
 						cont.add(winner);
 						winner = competitors[j];
 					} else {
 						cont.add(competitors[j]);
 					}
+					
 				}
 				
 				//choose the winner as a parent and add to next gen
 				parents[i] = winner;
+				System.out.print("Winner - "+winner);
+				System.out.println();
 				newPop[i] = parents[i];
 			}
 			
