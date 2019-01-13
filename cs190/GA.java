@@ -24,8 +24,8 @@ public class GA {
 	private LinkedList<chromosome> distinct;
 	private boolean multipleWindSpeed, isIrregular;
 	
-	JFrame frame = new JFrame();
-	JLabel[][] matrix;
+	/*JFrame frame = new JFrame();
+	JLabel[][] matrix;*/
 
 	public GA(int row, int col, int N, boolean multipleWindSpeed, boolean isIrregular) {
 		this.row = row;
@@ -34,7 +34,7 @@ public class GA {
 		this.multipleWindSpeed = multipleWindSpeed;
 		this.isIrregular = isIrregular;
 		
-		frame = new JFrame();
+		/*frame = new JFrame();
 		frame.getContentPane().setBackground(Color.WHITE);
 		frame.setBounds(100, 100, 525, 545);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -54,7 +54,7 @@ public class GA {
 		}
 		
 		frame.repaint();
-		frame.revalidate();
+		frame.revalidate();*/
 	}
 	
 	protected LinkedList<chromosome> getDistinctIndividiuals() {
@@ -164,7 +164,7 @@ public class GA {
 			isConverged = (distinct.size() == 1);
 			
 			//color the gui
-			final int x = best;
+			/*final int x = best;
 			new Thread(new Runnable() {
 				public void run() {
 					for(int i=0;i<population[x].genes.length;i++) {
@@ -179,7 +179,7 @@ public class GA {
 					frame.repaint();
 					frame.revalidate();
 				}
-			}).start();
+			}).start();*/
 			
 			
 			

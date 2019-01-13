@@ -43,16 +43,11 @@ public class main{
 				System.out.println("Case " + arguments[0] + i + " finished.");
 			} 
 		} else {
-			boolean[][] geneVal = {{true, true, true, true},
-					{true, false, false, false, true},
-					{true, false,  true, false, false},
-					{true, false, false, false, false, true},
-					{true, false, false,  true, false, false, true},
-					{true, false,  true, false,  true, false, false},
-					{true, false, false,  true, false,  true, false, true},
-					{true, false, false, false, false, false, false, false, true},
-					{true, false, false, false, false, false, false, false, true},
-					{true, true, true, true, true, true, true, true, true, true}};
+			boolean[][] geneVal = {{true, false, true, false, true},
+					{false, false, false, false, false},
+					{true, false, true, false, true},
+					{false, false, false, false, false},
+					{true, false, true, false, true}};
 			boolean multSpeed, isIrregular;
 			double[] u;
 			if (arguments[1].equals("A")) {
