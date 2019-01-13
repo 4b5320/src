@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class main{
 
 	public static void main(String[] arguments) {
-		arguments = new String[] {"A", "12", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"};
+		arguments = new String[] {"A", "9"};
 		
 		if (!arguments[0].equals("-fitness")) {
 			LinkedList<String> done = new LinkedList<String>();
