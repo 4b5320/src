@@ -102,9 +102,7 @@ public class guitest{
 		createLabel("A courtroom simulator...", new Rectangle(270, 130, 335, 30), 25, mainPanel);
 		status = createLabel("", new Rectangle(10,750, 1150, 50), 40, mainPanel);
 		configureButton(btnStart, 700, 250, mainPanel);
-		configureButton(btnAvatar, 700, 330, mainPanel);
-		configureButton(btnSettings, 700, 410, mainPanel);
-		configureButton(btnQuit, 700, 490, mainPanel);
+		configureButton(btnQuit, 700, 330, mainPanel);
 		subPanel.setLayout(null);
 		subPanel.setBackground(Color.CYAN);
 		subPanel.setBounds(50, 210, 650, 490);
@@ -607,6 +605,12 @@ public class guitest{
 					//sendMessage(new myMessage(10, playerRole));
 				}else if(message.isType(12) && (playerRole.equals("Prosecutor") || playerRole.equals("Defense Lawyer"))) {
 					timer = timeout;
+				}else if(message.isType(13)) {
+					for(int i=0;i<5;i++) {
+						Thread.sleep(1000);
+						courtArea.append("\nGame ends in " + i);
+					}
+					System.exit(0);
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -907,6 +911,11 @@ public class guitest{
 				
 				btnDecide.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JFrame(), "Are you sure?", "Are you sure?", JOptionPane.YES_NO_OPTION)) {
+							courtArea.append("\nYou: I declare the defendant is guilty!");
+							sendMessage(new myMessage(3, "I declare the defendant is guilty!", playerRole, playerName));
+							sendMessage(new myMessage(13, null));
+						}
 						
 					}
 				});

@@ -4,14 +4,16 @@ public class gene{
 	private boolean turbine;
 	private double power;
 	private boolean[][] wake;
-	private double u;
+	private double[] u;
 	protected int ipos, jpos, row, col;
+	private boolean isMultipleWindSpeed;
 	
-	public gene(int row, int col, int ipos, int jpos) {
+	public gene(int row, int col, int ipos, int jpos, boolean multSpeed) {
+		this.isMultipleWindSpeed = multSpeed;
 		wake = new boolean[row][col];
 		turbine = false;
 		power = 0;
-		u = Double.NaN;
+		u = new double[] {Double.NaN, Double.NaN, Double.NaN};
 		this.ipos = ipos;
 		this.jpos = jpos;
 		this.row = row;
@@ -30,15 +32,72 @@ public class gene{
 		turbine = b;
 	}
 	
-	protected double getWindSpeed() {
+	protected double[] getWindSpeed() {
 		return u;
 	}
 	
-	protected void setWindSpeed(double u) {
+	protected void setWindSpeed(double[] u, int theta) {
 		this.u = u;
-		power = 0.3*Math.pow(u, 3)*((double) 1/36);
+		power = 0;
+		for(double windspeed : u) {
+			power += 0.3*Math.pow(windspeed, 3)*getFractionOfOccurence(windspeed, theta);
+		}
 	}
 	
+	private double getFractionOfOccurence(double windspeed, int theta) {
+		if(isMultipleWindSpeed) {
+			double[][] data = new double[3][36];
+			for(int i=0;i<data.length;i++) {
+				for(int j=0;j<data[i].length;j++){
+					if(i == 0) {
+						data[i][j] = 0.004;
+					} else if(i == 1) {
+						if(j >= 0 && j <= 26) {
+							data[i][j] = 0.008;
+						} else if(j == 27 || j == 35) {
+							data[i][j] = 0.011;
+						} else if(j == 28 || j == 34) {
+							data[i][j] = 0.013;
+						} else if(j == 29 || j == 33) {
+							data[i][j] = 0.015;
+						} else if(j == 30 || j == 32) {
+							data[i][j] = 0.0145;
+						} else {
+							data[i][j] = 0.02;
+						}
+					} else {
+						if(j >= 0 && j <= 26) {
+							data[i][j] = 0.012;
+						} else if(j == 27 || j == 35) {
+							data[i][j] = 0.013;
+						} else if(j == 28 || j == 34) {
+							data[i][j] = 0.014;
+						} else if(j == 29 || j == 33) {
+							data[i][j] = 0.02;
+						} else if(j == 30 || j == 32) {
+							data[i][j] = 0.03;
+						} else {
+							data[i][j] = 0.035;
+						}
+					}
+				}
+			}
+			
+			
+			
+			if(windspeed <= 8) {
+				return data[0][(int) theta/10];
+			} else if(windspeed <= 12) {
+				return data[1][(int) theta/10];
+			} else {
+				return data[2][(int) theta/10];
+			}
+		} else {
+			//System.out.println("wrong");
+			return (double) 1/36;
+		}
+	}
+
 	protected double getPower() {
 		return power;
 	}

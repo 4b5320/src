@@ -58,6 +58,7 @@ public class myMessage implements java.io.Serializable{
 	 * 9 - A prompt saying the sender is a jury
 	 * 10 - timeout
 	 * 11 - objection or order
+	 * 12 - end
 	 * */
 }
 
