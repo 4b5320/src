@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 public class GA {
 	private final int maxPop = 100, maxGen = 4000;
+	//0.001984415661195087
 	private int gen = 1;
 	private chromosome[] population;
 	private int row, col, N;
@@ -226,7 +227,9 @@ public class GA {
 			
 			
 			//crossover
+			int crossNum = 0;
 			for(int i=parents.length;i<newPop.length;i++) {
+				System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
 				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)]);
 				newPop[i] = offsprings[0];
 				try {

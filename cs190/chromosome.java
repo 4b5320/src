@@ -209,20 +209,35 @@ public class chromosome{
 			}
 		}
 		
+		//print the parents
+		System.out.println("Parent 1\n" + c.toString());
+		System.out.println("Parent 2\n" + this.toString());
+		
+		
 		chromosome[] offsprings = {new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular),
 				new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular)};
-		
+
+		System.out.println("Mask");
 		for(int i=0;i<mask.length;i++) {
 			for(int j=0;j<mask[i].length;j++) {
 				if(mask[i][j]) {
+					System.out.print("1 ");
 					offsprings[0].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 					offsprings[1].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 				} else {
+					System.out.print("0 ");
 					offsprings[0].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 					offsprings[1].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 				}
 			}
+			System.out.println();
 		}
+		System.out.println();
+		
+
+		//print the offspring
+		System.out.println("Offspring 1\n" + offsprings[0].toString());
+		System.out.println("Offspring 2\n" + offsprings[1].toString());
 		
 		return offsprings;
 	}
