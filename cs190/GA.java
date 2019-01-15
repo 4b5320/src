@@ -211,15 +211,13 @@ public class GA {
 				for(int j=0;j<competitors.length;j++) {
 					try {
 						competitors[j] = cont.remove(rand.nextInt(cont.size()));
+						writer.write("contestant "+(j+1) + "\n");
+						//System.out.println("contestant "+(j+1));
+						writer.write(competitors[j] + "\n");
+						//System.out.println(competitors[j]);
 					} catch (Exception e) {
 						System.out.println(cont.isEmpty() + " " + population.length);
 					}
-				}
-				for(int j=0; j<competitors.length;j++) {
-					writer.write("contestant "+(j+1) + "\n");
-					//System.out.println("contestant "+(j+1));
-					writer.write(competitors[j] + "\n");
-					//System.out.println(competitors[j]);
 				}
 				//tournament!
 				chromosome winner = competitors[0];
