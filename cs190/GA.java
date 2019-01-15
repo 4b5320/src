@@ -184,7 +184,7 @@ public class GA {
 			writer.write("Generation "+gen+"\n");
 			//System.out.println("Generation "+gen);
 			for(int i=0;i<population.length;i++) {
-				writer.write("Individual "+(i+1)+"\n");
+				writer.write("Individual "+(i+1)+" Fitness - "+population[i].getFitness()+"\n");
 				//System.out.println("Individual "+(i+1));
 				writer.write(population[i]+"\n");
 				//System.out.println(population[i]);
