@@ -183,8 +183,10 @@ public class GA {
 			}).start();*/
 			System.out.println("Generation "+gen);
 			for(int i=0;i<population.length;i++) {
-				System.out.println("Individual "+(i+1));
-				System.out.println(population[i]);
+				writer.write("Individual "+(i+1)+"\n");
+				//System.out.println("Individual "+(i+1));
+				writer.write(population[i]+"\n");
+				//System.out.println(population[i]);
 			}
 			
 			//tournament selection
@@ -201,7 +203,8 @@ public class GA {
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[(int) Math.floorDiv(cont.size(), parents.length)];
 				
-				System.out.println("Generation "+gen+" : Tournament "+(i+1));
+				writer.write("Generation "+gen+" : Tournament "+(i+1) + "\n");
+				//System.out.println("Generation "+gen+" : Tournament "+(i+1));
 				
 				//choose competitors of the tournament
 				for(int j=0;j<competitors.length;j++) {
@@ -212,8 +215,10 @@ public class GA {
 					}
 				}
 				for(int j=0; j<competitors.length;j++) {
-					System.out.println("contestant "+(j+1));
-					System.out.println(competitors[j]);
+					writer.write("contestant "+(j+1) + "\n");
+					//System.out.println("contestant "+(j+1));
+					writer.write(competitors[j] + "\n");
+					//System.out.println(competitors[j]);
 				}
 				//tournament!
 				chromosome winner = competitors[0];
@@ -229,8 +234,10 @@ public class GA {
 				
 				//choose the winner as a parent and add to next gen
 				parents[i] = winner;
-				System.out.println("Winner");
-				System.out.println(winner);
+				//System.out.println("Winner");
+				//System.out.println(winner);
+				writer.write("Winner\n");
+				writer.write(winner + "\n");
 				newPop[i] = parents[i];
 			}
 			
@@ -238,7 +245,8 @@ public class GA {
 			//crossover
 			int crossNum = 0;
 			for(int i=parents.length;i<newPop.length;i++) {
-				System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
+				//System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
+				writer.write("Crossover " + (crossNum++) + " of generation " + gen + "\n");
 				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)]);
 				newPop[i] = offsprings[0];
 				try {
