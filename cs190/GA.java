@@ -181,7 +181,8 @@ public class GA {
 					frame.revalidate();
 				}
 			}).start();*/
-			System.out.println("Generation "+gen);
+			writer.write("Generation "+gen+"\n");
+			//System.out.println("Generation "+gen);
 			for(int i=0;i<population.length;i++) {
 				writer.write("Individual "+(i+1)+"\n");
 				//System.out.println("Individual "+(i+1));
@@ -247,7 +248,7 @@ public class GA {
 			for(int i=parents.length;i<newPop.length;i++) {
 				//System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
 				writer.write("Crossover " + (crossNum++) + " of generation " + gen + "\n");
-				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)]);
+				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)], writer);
 				newPop[i] = offsprings[0];
 				try {
 					newPop[++i] = offsprings[1];
@@ -256,8 +257,8 @@ public class GA {
 			
 			//mutation
 			for(int i=0;i<newPop.length;i++) {
-				newPop[i].mutate(mutationRate, i);
-				newPop[i].repair(i);
+				newPop[i].mutate(mutationRate, i, writer);
+				newPop[i].repair(i, writer);
 			}
 			
 			//move to the next generation

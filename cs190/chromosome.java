@@ -1,5 +1,7 @@
 package cs190;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -192,7 +194,7 @@ public class chromosome{
 		return String.valueOf((int) Math.floor(totalPow));
 	}
 	
-	protected chromosome[] crossWith(chromosome c) {
+	protected chromosome[] crossWith(chromosome c, FileWriter writer) throws IOException { //Exception thrown by writer
 		//generate the random mask
 		boolean[][] mask;
 		if(isIrregular) {
@@ -210,34 +212,43 @@ public class chromosome{
 		}
 		
 		//print the parents
-		System.out.println("Parent 1\n" + c.toString());
-		System.out.println("Parent 2\n" + this.toString());
+		writer.write("Parent 1\n" + c.toString() + "\n");
+		writer.write("Parent 2\n" + this.toString() + "\n");
+		//System.out.println("Parent 1\n" + c.toString());
+		//System.out.println("Parent 2\n" + this.toString());
 		
 		
 		chromosome[] offsprings = {new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular),
 				new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular)};
 
-		System.out.println("Mask");
+		//System.out.println("Mask");
+		writer.write("Mask\n");
 		for(int i=0;i<mask.length;i++) {
 			for(int j=0;j<mask[i].length;j++) {
 				if(mask[i][j]) {
-					System.out.print("1 ");
+					//System.out.print("1 ");
+					writer.write("1 ");
 					offsprings[0].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 					offsprings[1].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 				} else {
-					System.out.print("0 ");
+					//System.out.print("0 ");
+					writer.write("0 ");
 					offsprings[0].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 					offsprings[1].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 				}
 			}
-			System.out.println();
+			writer.write("\n");
+			//System.out.println();
 		}
-		System.out.println();
+		writer.write("\n");
+		//System.out.println();
 		
 
 		//print the offspring
-		System.out.println("Offspring 1\n" + offsprings[0].toString());
-		System.out.println("Offspring 2\n" + offsprings[1].toString());
+		writer.write("Offspring 1\n" + offsprings[0].toString() + "\n");
+		writer.write("Offspring 2\n" + offsprings[1].toString() + "\n");
+		//System.out.println("Offspring 1\n" + offsprings[0].toString());
+		//System.out.println("Offspring 2\n" + offsprings[1].toString());
 		
 		return offsprings;
 	}
@@ -262,9 +273,10 @@ public class chromosome{
 		return genes[i][j].isTurbinePresent();
 	}
 	
-	protected void mutate(double rate, int lbl) {
+	protected void mutate(double rate, int lbl, FileWriter writer) throws IOException { //Exception thrown by writer
 		if(rand.nextDouble() < rate) {
-			System.out.println(lbl + "th chromosome mutated from\n" + this.toString() + "\nto");
+			//System.out.println(lbl + "th chromosome mutated from\n" + this.toString() + "\nto");
+			writer.write(lbl + "th chromosome mutated from\n" + this.toString() + "\nto\n");
 			
 			//Find a random 1
 			int i0, j0;
@@ -288,12 +300,13 @@ public class chromosome{
 				}
 			} while(genes[i0][j0].isTurbinePresent());
 			genes[i0][j0].setTurbinePresence(true);
-			
-			System.out.println(this.toString());
+
+			//System.out.println(this.toString());
+			writer.write(this.toString() + "\n");
 		}
 	}
 	
-	protected void repair(int lbl) {
+	protected void repair(int lbl, FileWriter writer) throws IOException { //Exception thrown by writer
 		
 		//Count the number of turbines
 		int turbineCount = 0;
@@ -306,7 +319,8 @@ public class chromosome{
 		}
 		
 		if(turbineCount != N) {
-			System.out.println(lbl + "th chromosome repaired from\n" + this.toString());
+			//System.out.println(lbl + "th chromosome repaired from\n" + this.toString());
+			writer.write(lbl + "th chromosome repaired from\n" + this.toString() + "\n");
 			if(turbineCount > N) {
 				while(turbineCount > N) {
 					int i0, j0;
@@ -336,7 +350,8 @@ public class chromosome{
 					turbineCount++;
 				}
 			}
-			System.out.println("to\n" + this.toString());
+			//System.out.println("to\n" + this.toString());
+			writer.write("to\n" + this.toString());
 		}
 		
 	}
