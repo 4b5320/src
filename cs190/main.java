@@ -9,9 +9,11 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class main{
+	int dim = 5;
 
 	public static void main(String[] arguments) {
-		arguments = new String[] {"A", "9"};
+		
+		arguments = new String[] {/*"-fitness",*/ "A", "5"};
 		
 		if (!arguments[0].equals("-fitness")) {
 			LinkedList<String> done = new LinkedList<String>();
@@ -88,7 +90,7 @@ public class main{
 	
 	public main(int N, boolean multipleWindSpeed, boolean isIrregular) throws IOException {
 		
-		GA obj = new GA(5, 5, N, multipleWindSpeed, isIrregular);
+		GA obj = new GA(dim, dim, N, multipleWindSpeed, isIrregular);
 		obj.startGA();
 		
 		LinkedList<chromosome> initialSol = obj.getDistinctIndividiuals();

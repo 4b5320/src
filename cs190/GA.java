@@ -201,8 +201,9 @@ public class GA {
 			}
 			
 			//choose the parents
+			int m = 3; //tournament size
 			for(int i=0;i<parents.length;i++) {
-				chromosome[] competitors = new chromosome[(int) Math.floorDiv(cont.size(), parents.length)];
+				chromosome[] competitors = new chromosome[m];
 				
 				writer.write("Generation "+gen+" : Tournament "+(i+1) + "\n");
 				//System.out.println("Generation "+gen+" : Tournament "+(i+1));
@@ -223,10 +224,10 @@ public class GA {
 				chromosome winner = competitors[0];
 				for(int j=1;j<competitors.length;j++) {
 					if(Double.compare(competitors[j].getFitness(), winner.getFitness()) < 0) {
-						cont.add(winner);
+						//cont.add(winner);
 						winner = competitors[j];
 					} else {
-						cont.add(competitors[j]);
+						//cont.add(competitors[j]);
 					}
 					
 				}
@@ -241,7 +242,7 @@ public class GA {
 			}
 			
 			
-			//crossover
+			//crossover	
 			int crossNum = 0;
 			for(int i=parents.length;i<newPop.length;i++) {
 				//System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
