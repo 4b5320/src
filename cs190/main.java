@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class main{
 	int dim = 5;
@@ -111,22 +112,64 @@ public class main{
 		LocalSearch ls = new LocalSearch();
 		ls.startLocalSearchOn(initialSol);
 		
+		//localsearch
+		System.out.println("Local Search");
+		int[][] wtposition = new int[N][2];
+		chromosome local = null;
+		chromosome newlocal = null;
+		Stack<chromosome> STACK = new Stack<chromosome>();
+		
 		for(chromosome chr : ls.mostSuperiorNeighbors) {
 			System.out.println(N + "," + chr.getFitness());
 			
 			for(int i=0;i<chr.genes.length;i++) {
 				for(int j=0;j<chr.genes[i].length;j++) {
 					if(Integer.parseInt(chr.getPowerAt(i, j)) == 0) {
-						writer.write(",");
+						writer.write("0 ");
+
 					} else {
-						writer.write("XXXX,");
+						writer.write("1 ");
+
 					}
 				}
 				writer.write("\n");
 			}
-
+			local = chr;
 			writer.write("\n");
 			writer.write("\n");
+		}
+		
+		int turbs = 0;
+		
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				if(local.isTurbinePresentA(i,j)) {
+					System.out.print("1 ");
+					wtposition[turbs][1] = i;
+					wtposition[turbs][2] = j;
+					turbs++;
+				}else {
+					System.out.print("0 ");
+				}
+			}
+			System.out.print("\n");
+		}
+		
+		chromosome[] listlocal = new chromosome[N*8];
+		boolean localsearchIsRunning = true;
+		int nums = 1;
+		
+		while(localsearchIsRunning) {
+			
+			System.out.println("iteration "+nums);
+			
+			for(int i=0;i<N;i++) {
+				for(int j=0;j<8;j++) {
+					
+				}
+			}
+			localsearchIsRunning = false;
+			nums++;
 		}
 		
 		writer.close();
