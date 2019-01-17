@@ -261,7 +261,7 @@ public class chromosome{
 		return new int[] {row, col};
 	}
 	
-	protected chromosome editChromosome(int i0, int j0, int i, int j) {
+	protected chromosome editChromosome(int i0, int j0, int i, int j) throws ArrayIndexOutOfBoundsException{
 		chromosome c = new chromosome(this);
 		c.setGeneAt(i0, j0, false);
 		c.setGeneAt(i, j, true);
@@ -428,9 +428,9 @@ public class chromosome{
 		for(gene[] a : genes) {
 			for(gene b : a) {
 				if(b.isTurbinePresent()) {
-					s = s + (1 + " ");
+					s = s + ("TRUE, ");
 				} else {
-					s = s + (0 + " ");
+					s = s + ("FALSE, ");
 				}
 			}
 			s = s + "\n";
