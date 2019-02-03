@@ -37,7 +37,7 @@ public class LocalSearch {
 		for(int i=0;i<c.genes.length;i++) {
 			for(int j=0;j<c.genes[i].length;j++) {
 				if(c.isTurbinePresentA(i, j)) {
-					int[] pos = new int[] {-1,0,1};
+					/*int[] pos = new int[] {-1,0,1};
 					for(int a=0;a<pos.length;a++) {
 						for(int b=0;b<pos.length;b++) {
 							if(!(a==1 && b==1)) {
@@ -54,6 +54,24 @@ public class LocalSearch {
 										return neighbor;
 									}
 								} catch (ArrayIndexOutOfBoundsException e) { }
+							}
+						}
+					}*/
+					
+					for(int a=0;a<c.genes.length;a++) {
+						for(int b=0;b<c.genes[a].length;b++) {
+							if(!c.isTurbinePresentA(a, b)) {
+								chromosome neighbor = c.editChromosome(i, j, a, b);
+								neighbor.computeFitness();
+								
+								System.out.println(neighbor);
+								System.out.println(neighbor.getFitness() + "\n");
+								writer.write(neighbor.toString() + "\n");
+								writer.write(neighbor.getFitness() + "\n\n");
+								
+								if(Double.compare(neighbor.getFitness(), c.getFitness()) < 0) {
+									return neighbor;
+								}
 							}
 						}
 					}

@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 public class GA {
-	private final int maxPop = 100, maxGen = 4000;
+	private final int maxPop = 100, maxGen = 1000;
 	//0.001984415661195087
 	private int gen = 1;
 	private chromosome[] population;
@@ -181,12 +181,10 @@ public class GA {
 					frame.revalidate();
 				}
 			}).start();*/
-			writer.write("Generation "+gen+"\n");
-			//System.out.println("Generation "+gen);
 			for(int i=0;i<population.length;i++) {
-				writer.write("Individual "+(i+1)+" Fitness - "+population[i].getFitness()+"\n");
+				//writer.write("Individual "+(i+1)+" Fitness - "+population[i].getFitness()+"\n");
 				//System.out.println("Individual "+(i+1));
-				writer.write(population[i]+"\n");
+				//writer.write(population[i]+"\n");
 				//System.out.println(population[i]);
 			}
 			
@@ -205,16 +203,16 @@ public class GA {
 			for(int i=0;i<parents.length;i++) {
 				chromosome[] competitors = new chromosome[m];
 				
-				writer.write("Generation "+gen+" : Tournament "+(i+1) + "\n");
+				//writer.write("Generation "+gen+" : Tournament "+(i+1) + "\n");
 				//System.out.println("Generation "+gen+" : Tournament "+(i+1));
 				
 				//choose competitors of the tournament
 				for(int j=0;j<competitors.length;j++) {
 					try {
 						competitors[j] = cont.remove(rand.nextInt(cont.size()));
-						writer.write("contestant "+(j+1) + "\n");
+						//writer.write("contestant "+(j+1) + "\n");
 						//System.out.println("contestant "+(j+1));
-						writer.write(competitors[j] + "\n");
+						//writer.write(competitors[j] + "\n");
 						//System.out.println(competitors[j]);
 					} catch (Exception e) {
 						System.out.println(cont.isEmpty() + " " + population.length);
@@ -236,8 +234,8 @@ public class GA {
 				parents[i] = winner;
 				//System.out.println("Winner");
 				//System.out.println(winner);
-				writer.write("Winner\n");
-				writer.write(winner + "\n");
+				//writer.write("Winner\n");
+				//writer.write(winner + "\n");
 				newPop[i] = parents[i];
 			}
 			
@@ -246,7 +244,7 @@ public class GA {
 			int crossNum = 0;
 			for(int i=parents.length;i<newPop.length;i++) {
 				//System.out.println("Crossover " + (crossNum++) + " of generation " + gen);
-				writer.write("Crossover " + (crossNum++) + " of generation " + gen + "\n");
+				//writer.write("Crossover " + (crossNum++) + " of generation " + gen + "\n");
 				chromosome[] offsprings = parents[rand.nextInt(parents.length)].crossWith(parents[rand.nextInt(parents.length)], writer);
 				newPop[i] = offsprings[0];
 				try {
@@ -268,7 +266,9 @@ public class GA {
 				final int index = i;
 				Thread t = new Thread(new Runnable() {
 					public void run() {
-						population[index].computeFitness();
+						try {
+							population[index].computeFitness();
+						} catch (IOException e) { }
 					}
 				});
 				t.start();
@@ -284,6 +284,8 @@ public class GA {
 			gen++;
 			
 		}
+		
+		writer.write(distinct.getFirst().getFitness() + "\n" + distinct.getFirst().toString());
 		
 		writer.close();
 	}

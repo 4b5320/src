@@ -5,16 +5,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.Scanner;
-import java.util.Stack;
 
 public class main{
 	int dim = 5;
 
 	public static void main(String[] arguments) {
 		
-		arguments = new String[] {/*"-fitness",*/ "A", "5"};
+		arguments = new String[] {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"};
 		
 		if (!arguments[0].equals("-fitness")) {
 			LinkedList<String> done = new LinkedList<String>();
@@ -46,11 +44,16 @@ public class main{
 				System.out.println("Case " + arguments[0] + i + " finished.");
 			} 
 		} else {
-			boolean[][] geneVal = {{true, false, true, false, true},
-					{false, false, false, false, false},
-					{true, false, true, false, true},
-					{false, false, false, false, false},
-					{true, false, true, false, true}};
+			boolean[][] geneVal = new boolean[5][5];
+			
+			for(int i=0;i<geneVal.length;i++) {
+				for(int j=0;j<geneVal[i].length;j++) {
+					geneVal[i][j] = false;
+				}
+			}
+
+			geneVal[2][2] = true;
+			
 			boolean multSpeed, isIrregular;
 			double[] u;
 			if (arguments[1].equals("A")) {
@@ -84,7 +87,7 @@ public class main{
 			
 			//init chromosome
 			chromosome c = new chromosome(genes, u, multSpeed, isIrregular);
-			System.out.println(c.getFitness());
+			System.out.println(c.toString() + c.getFitness());
 		}
 		
 	}
@@ -95,6 +98,8 @@ public class main{
 		obj.startGA();
 		
 		LinkedList<chromosome> initialSol = obj.getDistinctIndividiuals();
+		
+		System.out.println(initialSol.getFirst().getFitness() + "\n" + initialSol.getFirst().toString());
 
 		File file;
 		if(isIrregular) {
@@ -110,7 +115,7 @@ public class main{
 		writer.write("\n");
 		writer.close();
 		
-		if(isIrregular) {
+		/*if(isIrregular) {
 			file = new File("./Results/C" + N + "-LS.csv");
 		} else if(multipleWindSpeed) {
 			file = new File("./Results/B" + N + "-LS.csv");
@@ -122,6 +127,6 @@ public class main{
 		LocalSearch ls = new LocalSearch();
 		ls.startLocalSearchOn(initialSol, writer);
 		
-		writer.close();
+		writer.close();*/
 	}
 }

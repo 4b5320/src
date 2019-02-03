@@ -1,5 +1,6 @@
 package cs190;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -67,7 +68,9 @@ public class chromosome{
 			}
 		}
 		
-		computeFitness();
+		try {
+			computeFitness();
+		} catch (IOException e) {  System.out.println("FileWriter failed");}
 	}
 	
 	public chromosome(chromosome c) {
@@ -93,7 +96,9 @@ public class chromosome{
 			}
 		}
 		
-		computeFitness();
+		try {
+			computeFitness();
+		} catch (IOException e) { System.out.println("FileWriter failed");}
 	}
 	
 	public chromosome(gene[][] genes, double[] u, boolean multSpeed, boolean isIrregular) {
@@ -128,7 +133,9 @@ public class chromosome{
 			}
 		}
 		
-		computeFitness();
+		try {
+			computeFitness();
+		} catch (IOException e) { System.out.println("FileWriter failed");}
 	}
 	
 	protected double[] getWindInitialWindSpeed() {
@@ -139,7 +146,11 @@ public class chromosome{
 		return N;
 	}
 	
-	protected void computeFitness() {
+	protected void computeFitness() throws IOException {
+		File fileFit = new File("./Results/fitness.csv");
+		FileWriter writerFit = new FileWriter(fileFit, true);
+		
+		
 		double totalPower = 0;
 		theta = 0; //reset the theta to 0
 		
@@ -158,18 +169,20 @@ public class chromosome{
 			//determine affected turbines by the wake of each turbine
 			for (int i = 0; i < genes.length; i++) {
 				for (int j = 0; j < genes[i].length; j++) {
-					if (genes[i][j].isTurbinePresent())
-						genes[i][j].computeWake(i, j, theta);
+					if (genes[i][j].isTurbinePresent()) {
+						genes[i][j].computeWake(i, j, theta, writerFit);
+					}
 				}
 			}
 			
 			for (int i = 0; i < genes.length; i++) {
 				for (int j = 0; j < genes[i].length; j++) {
-					genes[i][j].setWindSpeed(getWindSpeedAt(i, j), theta);
-					totalPower += genes[i][j].getPower();
+					if(this.isTurbinePresentA(i, j)) {
+						genes[i][j].setWindSpeed(getWindSpeedAt(i, j, writerFit), theta, writerFit);
+						totalPower += genes[i][j].getPower();
+					}
 				}
 			} 
-			
 			theta += 10;
 		}
 		
@@ -179,6 +192,9 @@ public class chromosome{
 		
 		fitness = cost/totalPower;
 		//System.out.println("Fitness: " + fitness);
+		
+		writerFit.close();
+		
 	}
 	
 	protected double getFitness() {
@@ -212,8 +228,8 @@ public class chromosome{
 		}
 		
 		//print the parents
-		writer.write("Parent 1\n" + c.toString() + "\n");
-		writer.write("Parent 2\n" + this.toString() + "\n");
+		//writer.write("Parent 1\n" + c.toString() + "\n");
+		//writer.write("Parent 2\n" + this.toString() + "\n");
 		//System.out.println("Parent 1\n" + c.toString());
 		//System.out.println("Parent 2\n" + this.toString());
 		
@@ -221,32 +237,30 @@ public class chromosome{
 		chromosome[] offsprings = {new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular),
 				new chromosome(row, col, N, u, isMultipleWindSpeed, c.isIrregular)};
 
-		//System.out.println("Mask");
-		writer.write("Mask\n");
 		for(int i=0;i<mask.length;i++) {
 			for(int j=0;j<mask[i].length;j++) {
 				if(mask[i][j]) {
 					//System.out.print("1 ");
-					writer.write("1 ");
+					//writer.write("1 ");
 					offsprings[0].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 					offsprings[1].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 				} else {
 					//System.out.print("0 ");
-					writer.write("0 ");
+					//writer.write("0 ");
 					offsprings[0].setGeneAt(i, j, c.isTurbinePresentA(i, j));
 					offsprings[1].setGeneAt(i, j, genes[i][j].isTurbinePresent());
 				}
 			}
-			writer.write("\n");
+			//writer.write("\n");
 			//System.out.println();
 		}
-		writer.write("\n");
+		//writer.write("\n");
 		//System.out.println();
 		
 
 		//print the offspring
-		writer.write("Offspring 1\n" + offsprings[0].toString() + "\n");
-		writer.write("Offspring 2\n" + offsprings[1].toString() + "\n");
+		//writer.write("Offspring 1\n" + offsprings[0].toString() + "\n");
+		//writer.write("Offspring 2\n" + offsprings[1].toString() + "\n");
 		//System.out.println("Offspring 1\n" + offsprings[0].toString());
 		//System.out.println("Offspring 2\n" + offsprings[1].toString());
 		
@@ -276,7 +290,7 @@ public class chromosome{
 	protected void mutate(double rate, int lbl, FileWriter writer) throws IOException { //Exception thrown by writer
 		if(rand.nextDouble() < rate) {
 			//System.out.println(lbl + "th chromosome mutated from\n" + this.toString() + "\nto");
-			writer.write(lbl + "th chromosome mutated from\n" + this.toString() + "\nto\n");
+			//writer.write(lbl + "th chromosome mutated from\n" + this.toString() + "\nto\n");
 			
 			//Find a random 1
 			int i0, j0;
@@ -302,7 +316,7 @@ public class chromosome{
 			genes[i0][j0].setTurbinePresence(true);
 
 			//System.out.println(this.toString());
-			writer.write(this.toString() + "\n");
+			//writer.write(this.toString() + "\n");
 		}
 	}
 	
@@ -320,7 +334,7 @@ public class chromosome{
 		
 		if(turbineCount != N) {
 			//System.out.println(lbl + "th chromosome repaired from\n" + this.toString());
-			writer.write(lbl + "th chromosome repaired from\n" + this.toString() + "\n");
+			//writer.write(lbl + "th chromosome repaired from\n" + this.toString() + "\n");
 			if(turbineCount > N) {
 				while(turbineCount > N) {
 					int i0, j0;
@@ -351,12 +365,12 @@ public class chromosome{
 				}
 			}
 			//System.out.println("to\n" + this.toString());
-			writer.write("to\n" + this.toString());
+			//writer.write("to\n" + this.toString());
 		}
 		
 	}
 	
-	private double[] getWindSpeedAt(int i, int j) {
+	private double[] getWindSpeedAt(int i, int j, FileWriter writer) {
 		
 		if (genes[i][j].isTurbinePresent()) {
 			if (Double.isNaN(genes[i][j].getWindSpeed()[0])) {
@@ -371,7 +385,7 @@ public class chromosome{
 				}
 
 				if (upstream.isEmpty()) {
-					genes[i][j].setWindSpeed(u, theta);
+					genes[i][j].setWindSpeed(u, theta, writer);
 					return genes[i][j].getWindSpeed();
 				} else {
 					double sum;
@@ -380,25 +394,46 @@ public class chromosome{
 						sum = 0;
 						for (gene g : upstream) {
 							sum = sum + Math.pow(
-									1 - (getWindSpeedDueTo(g.ipos, g.jpos, i, j)[k] / getWindSpeedAt(g.ipos, g.jpos)[k]), 2);
+									1 - (getWindSpeedDueTo(g.ipos, g.jpos, i, j, theta, writer)[k] / getWindSpeedAt(g.ipos, g.jpos, writer)[k]), 2);
 						} 
 						windSpeed[k] = (1 - Math.sqrt(sum)) * u[k];
 					}
 					
-					genes[i][j].setWindSpeed(windSpeed, theta);
+					//System.out.println("Turbine ("+theta+") at " + i + " " + j + " " + windSpeed[0]);
+					genes[i][j].setWindSpeed(windSpeed, theta, writer);
 					return genes[i][j].getWindSpeed();
 				}
 			} else {
 				return genes[i][j].getWindSpeed();
 			} 
 		} else {
-			genes[i][j].setWindSpeed(new double[] {0,0,0}, theta);
+			genes[i][j].setWindSpeed(new double[] {0,0,0}, theta, writer);
 			return genes[i][j].getWindSpeed();
 		}
 	}
 	
-	private double[] getWindSpeedDueTo(int i0, int j0, int i, int j) {//Modified Jensen
-		double x = 200*Math.sqrt(Math.pow(Math.abs(i - i0), 2) + Math.pow(Math.abs(j - j0), 2));
+	private double[] getWindSpeedDueTo(int i0, int j0, int i, int j, int theta, FileWriter writer) {//Modified Jensen
+		double x, y, alpha, b; // x=alpha*b
+		
+		alpha = (double) Math.sqrt(Math.pow(i - i0, 2) + Math.pow(j - j0, 2));
+		double phi;
+		
+		if((theta >= 0 && theta < 90) || (theta >= 180 && theta < 270)) {
+			phi = (double) Math.toDegrees(Math.atan(((double) Math.abs(j - j0)) / (Math.abs(i - i0))));
+			b = (double) Math.abs(((double) (theta)%90) - phi);
+		} else {
+			phi = (double) Math.toDegrees(Math.atan(((double) Math.abs(i - i0)) / (Math.abs(j - j0))));
+			b = (double) Math.abs(((double) (theta)%90) - phi);
+		}
+		
+		if(Double.compare(b, 0) == 0) {
+			x = (double) 200.0*alpha;
+		} else if (Double.compare(b, 90) == 0) {
+			x = (double) 0;
+		} else {
+			x = (double) 200.0* alpha * Math.abs(Math.cos(Math.toRadians(b)));
+		}
+		
 		
 		double CT = 0.88; //thrust coefficient
 		double a =  0.5 - 0.5*(Math.sqrt(1-CT)); //axial induction
@@ -410,12 +445,12 @@ public class chromosome{
 		double[] windSpeed;
 		if(this.isMultipleWindSpeed) {
 			windSpeed = new double[3];
-			windSpeed[0] = getWindSpeedAt(i0, j0)[0]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
-			windSpeed[1] = getWindSpeedAt(i0, j0)[1]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
-			windSpeed[2] = getWindSpeedAt(i0, j0)[2]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
+			windSpeed[0] = getWindSpeedAt(i0, j0, writer)[0]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
+			windSpeed[1] = getWindSpeedAt(i0, j0, writer)[1]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
+			windSpeed[2] = getWindSpeedAt(i0, j0, writer)[2]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
 		} else {
 			windSpeed = new double[3];
-			windSpeed[0] = getWindSpeedAt(i0, j0)[0]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
+			windSpeed[0] = getWindSpeedAt(i0, j0, writer)[0]*(1-(2*a*Math.pow((r0/(r0+beta*x)), 2)));
 		}
 		
 		

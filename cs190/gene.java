@@ -1,5 +1,8 @@
 package cs190;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class gene{
 	private boolean turbine;
 	private double power;
@@ -36,7 +39,7 @@ public class gene{
 		return u;
 	}
 	
-	protected void setWindSpeed(double[] u, int theta) {
+	protected void setWindSpeed(double[] u, int theta, FileWriter writer) {
 		this.u = u;
 		power = 0;
 		for(double windspeed : u) {
@@ -102,7 +105,7 @@ public class gene{
 		return power;
 	}
 	
-	protected void computeWake(int i0, int j0, int theta) {
+	protected void computeWake(int i0, int j0, int theta, FileWriter writer) {
 		wake = new boolean[row][col];
 		int iMin = 0, iMax = wake.length, jMin = 0, jMax = wake[0].length;
 		double z = 20/Math.tan(Math.toRadians(10)) / 200;
@@ -154,19 +157,37 @@ public class gene{
 				//Compute the angle
 				if(i != i0 || j != j0) {
 					if(i >= iMin && i <= iMax && j >= jMin && j <= jMax) {
+						//writer.write(theta + ",(" + i0 + " " + j0 + ")," + "(" + i + " " + j + "),");
+						
 						try {
 							
-							double angle = 0;
-							double diffangle = 0;
-							if((theta>=0 && theta<90) || (theta>=180 && theta<270)) {
-								angle = Math.toDegrees(Math.atan( ((float) j-j0+dy)/((float) i-i0+dx) ));
-								diffangle = Math.abs(angle+theta-(90*Math.floor(theta/90.0)));
-							}else {
-								angle = Math.toDegrees(Math.atan( ((float) i-i0+dx)/((float) j-j0+dy) ));
-								diffangle = Math.abs(angle-(theta-(90*Math.floor(theta/90.0))));
+							double x, y, a, b; // x=a*b
+							
+							a = (double) Math.sqrt(Math.pow(i - i0, 2) + Math.pow(j - j0, 2));
+							double phi;
+							
+							if((theta >= 0 && theta < 90) || (theta >= 180 && theta < 270)) {
+								phi = (double) Math.toDegrees(Math.atan(((double) Math.abs(j - j0)) / (Math.abs(i - i0))));
+								b = (double) Math.abs(((double) (theta)%90) - phi);
+							} else {
+								phi = (double) Math.toDegrees(Math.atan(((double) Math.abs(i - i0)) / (Math.abs(j - j0))));
+								b = (double) Math.abs(((double) (theta)%90) - phi);
 							}
 							
-							wake[i][j] = (diffangle <= 10);
+							if(Double.compare(b, 0) == 0) {
+								x = (double) 200.0*a;
+							} else if (Double.compare(b, 90) == 0) {
+								x = (double) 0;
+							} else {
+								x = (double) 200.0* a * Math.abs(Math.cos(Math.toRadians(b)));
+							}
+							y = (double) Math.sqrt(Math.pow(200*a, 2) - Math.pow(x, 2));
+							
+							//System.out.printf("%.4f\t", y/200);
+							
+							double r = (double) 0.3267949*x + 20;
+							
+							wake[i][j] = (Double.compare(y, r) < 0);
 						} catch (Exception e) {
 							System.out.print("null\t");
 						}
